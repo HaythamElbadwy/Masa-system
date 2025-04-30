@@ -34,7 +34,6 @@ export default function MarketingDropDown() {
   const [isAllCustomer, setIsAllCustomer] = useState([]);
   const [position, setPosition] = useState('Marketing');
   const [isAllEmployees, setIsAllEmployees] = useState([]);
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [searchCustomer, setSearchCustomer] = useState('');
   function addCustomerPopUp() {
     setIsAddCustomer(true)
@@ -131,10 +130,7 @@ export default function MarketingDropDown() {
       const data = await response.json();
 
       if (response.ok) {
-        if (isFirstLoad) {
-          toast.success(data.message, { theme: "dark" });
-          setIsFirstLoad(false);
-        }
+
         setIsAllEmployees(data.users);
         console.log(data.users);
 

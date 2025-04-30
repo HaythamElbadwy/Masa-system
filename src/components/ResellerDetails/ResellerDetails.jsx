@@ -19,6 +19,7 @@ export default function ResellerDetails() {
   const [currency, setCurrency] = useState('$');
   const [pay, setPay] = useState(0);
   const [debt, setDebt] = useState(0);
+  const [totalDebt, setTotalDebt] = useState(0);
   const [isDateFilter, setIsDateFilter] = useState('');
   const [isAllResellerCustomer, setIsAllResellerCustomer] = useState([]);
   const [resellerCustomerId, setResellerCustomerId] = useState();
@@ -201,7 +202,8 @@ export default function ResellerDetails() {
       if (response.ok) {
         setIsAllResellerCustomer(data.subscribes);
         setCurrentPage(data.page);
-        setAllPage(data.totalPages)
+        setAllPage(data.totalPages);
+        setTotalDebt(data.totalDebt)
         console.log(data);
 
       } else {
@@ -339,6 +341,11 @@ export default function ResellerDetails() {
             <div className={`${styles.export} text-[#7680DE] cursor-pointer mt-3`} onClick={handleDownloadReseller}>
               Export data....
             </div>
+            <div>
+            <h2 className='flex items-center'>Total Debt:  <p scope="col" className=" text-[#3E3D3D]">
+                <span className='bg-black w-20 h-7 inline-block rounded-lg ml-2 text-white'>{totalDebt}</span>
+              </p></h2>
+            </div>
           </div>
         </div>
 
@@ -436,7 +443,7 @@ export default function ResellerDetails() {
               <div className="relative bg-white rounded-lg shadow-sm dark:bg-gray-700 w-[500px]">
                 <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    ADD New Subscribe
+                    Edite New Subscribe
                   </h3>
                   <button type="button" onClick={() => { setIsEditeSubscribe(false); clearInput() }} className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="crud-modal">
                     <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">

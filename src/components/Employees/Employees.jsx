@@ -11,7 +11,6 @@ export default function Employees() {
   const [totalPages, setAllPage] = useState(0);
   const [position, setPosition] = useState('all');
   const [isAllEmployees, setIsAllEmployees] = useState([]);
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [isEditeEmployee, setIsEditeEmployee] = useState(false);
   const [isDeleteEmployee, setIsDeleteEmployee] = useState(false);
   const [isName, setIsName] = useState('');
@@ -64,10 +63,6 @@ export default function Employees() {
       const data = await response.json();
 
       if (response.ok) {
-        if (isFirstLoad) {
-          toast.success(data.message, { theme: "dark" });
-          setIsFirstLoad(false);
-        }
         setIsAllEmployees(data.users);
         setCurrentPage(data.page);
         setAllPage(data.totalPages)

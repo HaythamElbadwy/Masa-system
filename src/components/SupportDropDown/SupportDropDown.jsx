@@ -36,7 +36,7 @@ export default function SupportDropDown() {
 
   return (
     <section className='mt-8'>
-      <div className='mr-[62rem]'>
+      <div className='flex'>
         <button
           id="dropdownDefaultButton"
           onClick={toggleDropdownSupport}
@@ -65,7 +65,7 @@ export default function SupportDropDown() {
         {openDropDown && (
           <div
             id="dropdownOne"
-            className={`${styles.dropdown} absolute  mt-2 z-10 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700`}
+            className={`${styles.dropdown} absolute  mt-12 z-10 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700`}
           >
             <ul className={`${styles.dropDownSelected} py-2 text-sm text-gray-700 dark:text-gray-200`}>
               {adminOptions.map((option) => (

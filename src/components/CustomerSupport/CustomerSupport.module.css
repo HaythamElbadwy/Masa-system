@@ -2,7 +2,7 @@
   border: 0.84px solid rgba(209, 209, 209, 1);
   border-radius: 10px;
   padding: 10px;
-  margin: 1rem;
+  margin: 1rem 0;
   overflow-x: auto;
 }
 

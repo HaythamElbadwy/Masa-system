@@ -12,6 +12,13 @@ export default function Reseller() {
   const [isName, setIsName] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [isAllReseller, setIsAllReseller] = useState([]);
+  const [accountNum, setAccountNum] = useState(0);
+  const [deviceNum, setDeviceNum] = useState(0);
+  const [accountPrice, setAccountPrice] = useState(0);
+  const [devicePrice, setDevicePrice] = useState(0);
+  const [currency, setCurrency] = useState('$');
+  const [pay, setPay] = useState(0);
+  const [debt, setDebt] = useState(0);
   const [searchReseller, setSearchReseller] = useState('');
 
   function addReseller() {
@@ -29,7 +36,7 @@ export default function Reseller() {
           'Content-Type': 'application/json',
           'authorization': `sysOM0${localStorage.getItem('authToken')}`
         },
-        body: JSON.stringify({ name: isName })
+        body: JSON.stringify({ name: isName, accountNum, deviceNum, accountPrice, devicePrice, pay, debt, currency })
       });
 
       const data = await response.json();
@@ -69,7 +76,8 @@ export default function Reseller() {
 
   function handleAdd(e) {
     e.preventDefault();
-    if (isName == '') {
+    if (isName == '' || accountNum == 0 || deviceNum == 0 || accountPrice == 0 || devicePrice == 0 || pay == 0
+      || debt == 0 || currency == '') {
       toast("All faildes is Rquired!", {
         theme: 'dark'
       })
@@ -80,6 +88,12 @@ export default function Reseller() {
 
   function clearInput() {
     setIsName('');
+    setAccountNum(0)
+    setDeviceNum(0)
+    setAccountPrice(0)
+    setDevicePrice(0)
+    setPay(0)
+    setDebt(0)
 
   }
   ////////////////////////END ADD RESELLER//////////////////////////////
@@ -252,6 +266,51 @@ export default function Reseller() {
                       <label htmlFor="name" className="flex mb-2  font-medium text-gray-900 dark:text-white">Name</label>
                       <input type="text" onChange={(e) => setIsName(e.target.value)} value={isName} name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter Your Name" required="" />
                     </div>
+
+                    <div className='flex items-center justify-center col-span-2'>
+                      <div className='w-1/2 mx-5'>
+                        <label htmlFor="applicationNum" className="flex mb-2  font-medium text-gray-900 dark:text-white">Applications Num</label>
+                        <input onChange={(e) => setAccountNum(e.target.value)} value={accountNum} type="number" name="applicationNum" id="applicationNum" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="" />
+                      </div>
+                      <div className='w-1/2 mr-[-17px]'>
+                        <label htmlFor="price" className="flex mb-2 font-medium text-gray-900 dark:text-white">Price</label>
+                        <div className='flex'>
+                          <input onChange={(e) => setAccountPrice(e.target.value)} value={accountPrice} type="number" name="price" id="price"
+                            className="w-32 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="" />
+                          <select onChange={(e) => setCurrency(e.target.value)} value={currency} id="countries" className="mx-5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-16 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                            <option>$</option>
+                            <option>Euro</option>
+                            <option>Corona</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className='flex items-center justify-center col-span-2'>
+                      <div className='w-1/2 mx-5'>
+                        <label htmlFor="deviceNum" className="flex mb-2  font-medium text-gray-900 dark:text-white">Device Num</label>
+                        <input onChange={(e) => setDeviceNum(e.target.value)} value={deviceNum} type="number" name="deviceNum" id="deviceNum" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="" />
+                      </div>
+                      <div className='w-1/2 mr-[-17px]'>
+                        <label htmlFor="priceDevice" className="flex mb-2 font-medium text-gray-900 dark:text-white">Price</label>
+                        <div className='flex'>
+                          <input onChange={(e) => setDevicePrice(e.target.value)} value={devicePrice} type="number" name="price" id="priceDevice"
+                            className="w-32 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="" />
+
+                        </div>
+                      </div>
+                    </div>
+                    <div className='flex items-center justify-center col-span-2'>
+                      <div className='w-1/2 mx-5'>
+                        <label htmlFor="pay" className="flex mb-2  font-medium text-gray-900 dark:text-white">Pay</label>
+                        <input onChange={(e) => setPay(e.target.value)} value={pay} type="number" name="pay" id="pay" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="" />
+                      </div>
+                      <div className='w-1/2 mx-5'>
+                        <label htmlFor="debt" className="flex mb-2  font-medium text-gray-900 dark:text-white">Debt</label>
+                        <input onChange={(e) => setDebt(e.target.value)} value={debt} type="number" name="debt" id="debt" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="" />
+                      </div>
+                    </div>
+
                   </div>
                   <button type="submit"
                     onClick={handleAdd}
