@@ -1,0 +1,8 @@
+.dropdownDefaultButton {
+    background-color: #F3F1F1F1 !important;
+}
+
+.dropDownSelected {
+    border: 1px solid rgba(40, 81, 144, 1);
+    border-radius: 10px;
+}
