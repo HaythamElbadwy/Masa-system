@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { useState } from 'react'
 import styles from './Navbar.module.css';
 import logo from '../../assets/Image/masa.png'
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { toast } from 'react-toastify';
 export default function Navbar() {
   const [userName, setUserName] = useState("")
@@ -50,11 +50,11 @@ export default function Navbar() {
     <nav className=" flex justify-between items-center fixed top-0 w-full z-50 bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
       <div className={`${styles.logo_sidebar} rtl:justify-end ml-6`}>
 
-        <a className="flex ms-2 md:me-24">
+        <Link className="flex ms-2 md:me-24" to={'admin'}>
           <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">
             <img src={logo} className='w-20' alt="" />
           </span>
-        </a>
+        </Link>
 
       </div>
       <div>
@@ -81,11 +81,11 @@ export default function Navbar() {
         </ul>
       </div>
       <div className="flex items-center mr-5">
-        <div className="flex items-center ms-3">
+        <div className="flex items-center ms-3  mr-2">
           <h1 className={`${styles.user} font-bold mr-1`}>Hi {userName}</h1>
         </div>
         <NavLink onClick={handleLogOut} to={'/'}>
-          <i class="fa-solid fa-right-from-bracket text-[#9B9B9B]"></i>
+          <i className="fa-solid fa-right-from-bracket text-red-500"></i>
         </NavLink>
 
       </div>

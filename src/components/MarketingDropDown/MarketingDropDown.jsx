@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo, useRef } from 'react'
 import { useEffect } from 'react'
 import { useState } from 'react'
 import styles from './MarketingDropDown.module.css';
@@ -6,6 +6,10 @@ import { Pagination } from 'flowbite-react';
 import PhoneInput from "react-phone-input-2";
 import 'react-phone-input-2/lib/style.css';
 import { toast } from 'react-toastify';
+import Select from 'react-select';
+import countryList from 'react-select-country-list';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 export default function MarketingDropDown() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -35,34 +39,71 @@ export default function MarketingDropDown() {
   const [position, setPosition] = useState('Marketing');
   const [isAllEmployees, setIsAllEmployees] = useState([]);
   const [searchCustomer, setSearchCustomer] = useState('');
-  function addCustomerPopUp() {
-    setIsAddCustomer(true)
-  }
+  const [from, setFrom] = useState('');
+  const [to, setTo] = useState('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [dates, setDates] = useState([null, null]);
+  const datePickerRef = useRef(null);
 
-  function editeCustomerPopUp(customers) {
-    setIsEditeCustomer(true)
-    setCustomerId(customers._id)
-    setIsName(customers.name);
-    setEmail(customers.email);
-    setPrice(customers.price);
-    setApp(customers.app);
-    setProvider(customers.provider);
-    setPhone(customers.phone);
-    setStatue(customers.statue);
-    setIsMacAddress(customers.mac_address);
-    setCurrency(customers.currency);
-    setIsCountry(customers.country);
+  const options = useMemo(() => countryList().getData(), []);
 
-  }
+  const handleDateChange = (update) => {
+    setDates(update);
+
+    const [start, end] = update;
+    if (start) console.log('Start Date:', start.toISOString().slice(0, 10));
+    if (end) console.log('End Date:', end.toISOString().slice(0, 10));
+
+    if (end) {
+      setShowDatePicker(false);
+      setFrom(start)
+      setTo(end);
+      setDates([null, null])
+      getCustomer(currentPage,  employeeId ,  isAppFilter, isProviderFilter, start, end, isStatueFilter)
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (datePickerRef.current && !datePickerRef.current.contains(event.target)) {
+        setShowDatePicker(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // const changeHandler = value => {
+  //   setIsCountry(value);
+  // };
+  // function addCustomerPopUp() {
+  //   setIsAddCustomer(true)
+  // }
+
+  // function editeCustomerPopUp(customers) {
+  //   setIsEditeCustomer(true)
+  //   setCustomerId(customers._id)
+  //   setIsName(customers.name);
+  //   setEmail(customers.email);
+  //   setPrice(customers.price);
+  //   setApp(customers.app);
+  //   setProvider(customers.provider);
+  //   setPhone(customers.phone);
+  //   setStatue(customers.statue);
+  //   setIsMacAddress(customers.mac_address);
+  //   setCurrency(customers.currency);
+  //   setIsCountry(customers.country);
+
+  // }
 
 
   function handleFilterApp(value) {
     if (value == "App") {
       setIsAppFilter('')
-      getCustomer(currentPage, employeeId, '', isProviderFilter, isDateFilter, isStatueFilter)
+      getCustomer(currentPage, employeeId, '', isProviderFilter, from, to, isStatueFilter)
     } else {
       setIsAppFilter(value)
-      getCustomer(currentPage, employeeId, value, isProviderFilter, isDateFilter, isStatueFilter)
+      getCustomer(currentPage, employeeId, value, isProviderFilter, from, to, isStatueFilter)
     }
 
   }
@@ -70,10 +111,10 @@ export default function MarketingDropDown() {
   function handleFilterProvider(value) {
     if (value == "Provider") {
       setIsProviderFilter('')
-      getCustomer(currentPage, employeeId, isAppFilter, '', isDateFilter, isStatueFilter)
+      getCustomer(currentPage, employeeId, isAppFilter, '', from, to, isStatueFilter)
     } else {
       setIsProviderFilter(value)
-      getCustomer(currentPage, employeeId, isAppFilter, value, isDateFilter, isStatueFilter)
+      getCustomer(currentPage, employeeId, isAppFilter, value, from, to, isStatueFilter)
     }
 
   }
@@ -81,36 +122,27 @@ export default function MarketingDropDown() {
   function handleFilterStatus(value) {
     if (value == "Status") {
       setIsStatueFilter('')
-      getCustomer(currentPage, employeeId, isAppFilter, isProviderFilter, isDateFilter, '')
+      getCustomer(currentPage, employeeId, isAppFilter, isProviderFilter, from, to, '')
     } else {
       setIsStatueFilter(value)
-      getCustomer(currentPage, employeeId, isAppFilter, isProviderFilter, isDateFilter, value)
+      getCustomer(currentPage, employeeId, isAppFilter, isProviderFilter, from, to, value)
     }
 
   }
 
-  function handleFilterDate(value) {
-    if (value == "s") {
-      setIsDateFilter('')
-      getCustomer(currentPage, employeeId, isAppFilter, isProviderFilter, '', isStatueFilter)
-    } else {
-      setIsDateFilter(value)
-      getCustomer(currentPage, employeeId, isAppFilter, isProviderFilter, value, isStatueFilter)
-    }
 
-  }
 
   function handleFilterEmployee(value) {
     console.log(value);
 
     if (value == "Employees") {
       setEmployeeId('')
-      getCustomer(currentPage, '', isAppFilter, isProviderFilter, isDateFilter, isStatueFilter)
+      getCustomer(currentPage, '', isAppFilter, isProviderFilter, from, to, isStatueFilter)
     } else {
       const id = isAllEmployees.filter(e => e.name == value)[0]._id
       setEmployeeId(id)
 
-      getCustomer(currentPage, id, isAppFilter, isProviderFilter, isDateFilter, isStatueFilter)
+      getCustomer(currentPage, id, isAppFilter, isProviderFilter, from, to, isStatueFilter)
     }
 
   }
@@ -256,104 +288,106 @@ export default function MarketingDropDown() {
 
   ////////////////////////START ADD CUSTOMERS//////////////////////////////
 
-  const addNewCustomer = async () => {
-    setIsLoading(true)
-    try {
-      const response = await fetch(`https://masa-system.vercel.app/api/v1/customer/add`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'authorization': `sysOM0${localStorage.getItem('authToken')}`
-        },
-        body: JSON.stringify({ name: isName, email, phone: '+' + phone, mac_address: isMacAddress, app, provider, price, currency, statue, country: isCountry })
-      });
+  // const addNewCustomer = async () => {
+  //   console.log(isCountry.label);
 
-      const data = await response.json();
+  //   setIsLoading(true)
+  //   try {
+  //     const response = await fetch(`https://masa-system.vercel.app/api/v1/customer/add`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         'authorization': `sysOM0${localStorage.getItem('authToken')}`
+  //       },
+  //       body: JSON.stringify({ name: isName, email, phone: '+' + phone, mac_address: isMacAddress, app, provider, price, currency, statue, country: isCountry.label })
+  //     });
 
-      if (response.ok) {
-        getCustomer(currentPage, employeeId, isAppFilter, isProviderFilter, isStatueFilter, isDateFilter)
-        toast.success(data.message, {
-          theme: 'dark'
-        })
-        setIsAddCustomer(false)
-        clearInput()
-      } else {
-        switch (response.status) {
-          case 500:
-            toast.error(data.message, {
-              theme: "dark"
-            });
-            break;
-          case 404:
-            toast.error(data.message, {
-              theme: "dark"
-            });
-            break;
-          default:
-            toast('An error occurred. Please try again.', {
-              theme: "dark"
-            });
-        }
-      }
+  //     const data = await response.json();
 
-    } catch (err) {
-      console.error("Error Saving Customer:", err);
-    } finally {
-      setIsLoading(false)
-    }
-  };
+  //     if (response.ok) {
+  //       getCustomer(currentPage, employeeId, isAppFilter, isProviderFilter, isStatueFilter, isDateFilter)
+  //       toast.success(data.message, {
+  //         theme: 'dark'
+  //       })
+  //       setIsAddCustomer(false)
+  //       clearInput()
+  //     } else {
+  //       switch (response.status) {
+  //         case 500:
+  //           toast.error(data.message, {
+  //             theme: "dark"
+  //           });
+  //           break;
+  //         case 404:
+  //           toast.error(data.message, {
+  //             theme: "dark"
+  //           });
+  //           break;
+  //         default:
+  //           toast('An error occurred. Please try again.', {
+  //             theme: "dark"
+  //           });
+  //       }
+  //     }
 
-  function handleAdd(e) {
-    e.preventDefault();
-    if (app == 'Choose a App') {
-      toast("Please Choose the Application", {
-        theme: 'dark'
-      })
-      return
-    } else if (provider == 'Choose a Provider') {
-      toast("Please Choose the Provider", {
-        theme: 'dark'
-      })
-      return
-    } else if (statue == 'Choose a Status') {
-      toast("Please Choose the Status", {
-        theme: 'dark'
-      })
-      return
-    }
+  //   } catch (err) {
+  //     console.error("Error Saving Customer:", err);
+  //   } finally {
+  //     setIsLoading(false)
+  //   }
+  // };
 
-    if (isName == '' || email == '' || phone == '' || isMacAddress == '' || app == ''
-      || provider == '' || price == '' || statue == '') {
-      toast("All faildes is Rquired!", {
-        theme: 'dark'
-      })
-    } else {
-      addNewCustomer()
-    }
+  // function handleAdd(e) {
+  //   e.preventDefault();
+  //   if (app == 'Choose a App') {
+  //     toast("Please Choose the Application", {
+  //       theme: 'dark'
+  //     })
+  //     return
+  //   } else if (provider == 'Choose a Provider') {
+  //     toast("Please Choose the Provider", {
+  //       theme: 'dark'
+  //     })
+  //     return
+  //   } else if (statue == 'Choose a Status') {
+  //     toast("Please Choose the Status", {
+  //       theme: 'dark'
+  //     })
+  //     return
+  //   }
+
+  //   if (isName == '' || email == '' || phone == '' || isMacAddress == '' || app == ''
+  //     || provider == '' || price == '' || statue == '') {
+  //     toast("All faildes is Rquired!", {
+  //       theme: 'dark'
+  //     })
+  //   } else {
+  //     addNewCustomer()
+  //   }
 
 
 
-  }
+  // }
 
-  function clearInput() {
-    setIsName('');
-    setEmail('');
-    setPrice('');
-    setApp('');
-    setProvider('');
-    setPhone('');
-    setStatue('');
-    setIsMacAddress('');
-    setCurrency('$');
-    setIsCountry('');
-  }
+  // function clearInput() {
+  //   setIsName('');
+  //   setEmail('');
+  //   setPrice('');
+  //   setApp('');
+  //   setProvider('');
+  //   setPhone('');
+  //   setStatue('');
+  //   setIsMacAddress('');
+  //   setCurrency('$');
+  //   setIsCountry('');
+  // }
   ////////////////////////END ADD CUSTOMERS//////////////////////////////
 
   /////////////////////// START GET APPLICATIONS FILTER FUNCTION////////////////
-  const getCustomer = async (page, employeeId, isAppFilter, isProviderFilter, isDateFilter, isStatueFilter) => {
+  const getCustomer = async (page, employeeId, isAppFilter, isProviderFilter, from, to , isStatueFilter) => {
 
     try {
-      const response = await fetch(`https://masa-system.vercel.app/api/v1/customer/get?page=${page}&app=${isAppFilter}&statue=${isStatueFilter}&provider=${isProviderFilter}&date=${isDateFilter}&employee=Marketing&employeeId=${employeeId}`, {
+      const response = await fetch(`https://masa-system.vercel.app/api/v1/customer/get?page=${page}&app=${isAppFilter}&statue=${isStatueFilter}&provider=${isProviderFilter}&from=${from}&to=${to}&employee=Marketing&employeeId=${employeeId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -398,69 +432,69 @@ export default function MarketingDropDown() {
   };
   const onPageChange = (page) => {
     setCurrentPage(page)
-    getCustomer(page, employeeId, isAppFilter, isProviderFilter, isStatueFilter, isDateFilter)
+    getCustomer(page, employeeId, isAppFilter, isProviderFilter, from , to ,  isStatueFilter)
   };
   useEffect(() => {
-    getCustomer(1, employeeId, isAppFilter, isProviderFilter, isStatueFilter, isDateFilter)
+    getCustomer(1, employeeId, isAppFilter, isProviderFilter,  from , to , isStatueFilter)
   }, [])
   /////////////////////// END GET APPLICATIONS FILTER FUNCTION////////////////
 
   //////////////////////START EDITE CUSTOMERS///////////////////////////////////
 
-  const editeCustomers = async () => {
+  // const editeCustomers = async () => {
 
-    setIsLoading(true)
-    try {
-      const response = await fetch(`https://masa-system.vercel.app/api/v1/customer/update/${customerId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'authorization': `sysOM0${localStorage.getItem('authToken')}`
-        },
-        body: JSON.stringify({ name: isName, email, phone: '+' + phone, mac_address: isMacAddress, app, provider, price, currency, statue, country: isCountry })
-      });
+  //   setIsLoading(true)
+  //   try {
+  //     const response = await fetch(`https://masa-system.vercel.app/api/v1/customer/update/${customerId}`, {
+  //       method: 'PUT',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         'authorization': `sysOM0${localStorage.getItem('authToken')}`
+  //       },
+  //       body: JSON.stringify({ name: isName, email, phone: '+' + phone, mac_address: isMacAddress, app, provider, price, currency, statue, country: isCountry })
+  //     });
 
-      const data = await response.json();
+  //     const data = await response.json();
 
-      if (response.ok) {
-        getCustomer(currentPage, employeeId, isAppFilter, isProviderFilter, isStatueFilter, isDateFilter)
-        toast.success(data.message, {
-          theme: 'dark'
-        })
-        setIsEditeCustomer(false)
-        clearInput()
-      } else {
-        switch (response.status) {
-          case 500:
-            toast.error(data.message, {
-              theme: "dark"
-            });
-            break;
-          default:
-            toast('An error occurred. Please try again.');
-        }
-      }
+  //     if (response.ok) {
+  //       getCustomer(currentPage, employeeId, isAppFilter, isProviderFilter, isStatueFilter, isDateFilter)
+  //       toast.success(data.message, {
+  //         theme: 'dark'
+  //       })
+  //       setIsEditeCustomer(false)
+  //       clearInput()
+  //     } else {
+  //       switch (response.status) {
+  //         case 500:
+  //           toast.error(data.message, {
+  //             theme: "dark"
+  //           });
+  //           break;
+  //         default:
+  //           toast('An error occurred. Please try again.');
+  //       }
+  //     }
 
-    } catch (err) {
-      console.error("Error Saving Faqs:", err);
-    } finally {
-      setIsLoading(false)
-    }
-  };
+  //   } catch (err) {
+  //     console.error("Error Saving Faqs:", err);
+  //   } finally {
+  //     setIsLoading(false)
+  //   }
+  // };
 
 
-  function hundleUpdate(e) {
-    e.preventDefault();
-    if (phone == '' || price == '' || statue == '') {
-      toast("All faildes is Rquired!", {
-        theme: 'dark'
-      })
-    } else {
-      editeCustomers()
+  // function hundleUpdate(e) {
+  //   e.preventDefault();
+  //   if (phone == '' || price == '' || statue == '') {
+  //     toast("All faildes is Rquired!", {
+  //       theme: 'dark'
+  //     })
+  //   } else {
+  //     editeCustomers()
 
-    }
+  //   }
 
-  }
+  // }
 
   ////////////////////////////END EDITE CUSTOMERS/////////////////////////////////
 
@@ -469,7 +503,7 @@ export default function MarketingDropDown() {
     setSearchCustomer(macAddress);
 
     if (macAddress === '') {
-      getCustomer(currentPage, employeeId, isAppFilter, isProviderFilter, isStatueFilter, isDateFilter); // Fetch all transactions if search is cleared
+      getCustomer(currentPage, employeeId, isAppFilter, isProviderFilter, from , to , isStatueFilter); // Fetch all transactions if search is cleared
       return;
     }
 
@@ -523,21 +557,21 @@ export default function MarketingDropDown() {
             </div>
             <input onChange={(e) => getSearchCustomer(e.target.value)} type="search" id="default-search" className="block w-full h-11 p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search by Mac Address" required />
           </div>
-          <button type="button"
+          {/* <button type="button"
             onClick={addCustomerPopUp}
             className="mx-3 text-black hover:text-white border
               border-black hover:bg-black focus:ring-4 focus:outline-none
                focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-black dark:text-black dark:hover:text-white
                 dark:hover:bg-black">
             <i className="fa-solid fa-plus mr-4"></i>
-            Add Customer</button>
+            Add Customer</button> */}
         </div>
         <table className='table-auto w-full mt-4'>
           <thead className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 '>
             <tr className={`${styles.reseller_header}`}>
               <th scope="col" className="py-3">
                 <select
-                  className="border bg-[#d1d1d1] border-gray-300 rounded  py-1 text-sm focus:outline-none"
+                  className="border w-[128px] bg-[#d1d1d1] border-gray-300 rounded  py-1 text-sm focus:outline-none"
                   onChange={(e) => handleFilterEmployee(e.target.value)}
                   defaultValue=""
                 >
@@ -577,12 +611,30 @@ export default function MarketingDropDown() {
                   ))}
                 </select>
               </th>
-              <th scope="col" className="py-3">Provider Price</th>
+              <th scope="col" className="py-3">Price</th>
               <th scope="col" className="py-3">
-                <input
-                  type="date"
-                  className="border bg-[#d1d1d1] border-gray-300 rounded py-1 text-sm focus:outline-none"
-                  onChange={(e) => handleFilterDate(e.target.value)} />
+                <div className="relative" ref={datePickerRef}>
+                  <span
+                    className=" cursor-pointer"
+                    onClick={() => setShowDatePicker(!showDatePicker)}
+                  >
+                    Select Date Range
+                  </span>
+                  {showDatePicker && (
+                    <div className="absolute z-10">
+                      <DatePicker
+                        selected={dates[0]}
+                        onChange={handleDateChange}
+                        startDate={dates[0]}
+                        endDate={dates[1]}
+                        selectsRange
+                        inline
+                        dateFormat="yyyy-MM-dd"
+                        placeholderText="Select date range"
+                      />
+                    </div>
+                  )}
+                </div>
               </th>
               <th scope="col" className="py-3">
                 <select
@@ -595,7 +647,7 @@ export default function MarketingDropDown() {
                   <option value="Sub">Sub</option>
                 </select>
               </th>
-              <th scope="col" className="py-3">Active</th>
+              {/* <th scope="col" className="py-3">Active</th> */}
             </tr>
           </thead>
           <tbody>
@@ -617,11 +669,11 @@ export default function MarketingDropDown() {
                 <td scope="col" className="py-3">{customers.country}</td>
                 <td scope="col" className="py-3">{customers.provider}</td>
                 <td scope="col" className="py-3">{customers.price + '' + customers.currency}</td>
-                <td scope="col" className="py-3">{customers.createdAt}</td>
+                <td scope="col" className="py-3">{new Date(customers.createdAt).toISOString().split('T')[0]}</td>
                 <td scope="col" className="py-3">{customers.statue}</td>
-                <td scope="col" className="py-3">
+                {/* <td scope="col" className="py-3">
                   <i onClick={() => editeCustomerPopUp(customers)} className={`${styles.icon_edite} fa-solid fa-pen mx-3 cursor-pointer`}></i>
-                </td>
+                </td> */}
               </tr>
 
             ))}
@@ -640,7 +692,7 @@ export default function MarketingDropDown() {
 
 
 
-      {isAddCustomer ?
+      {/* {isAddCustomer ?
         <form>
           <div id="popup-modal" tabindex="-1" className="fixed overflow-y-auto backdrop-blur-sm z-[9999] top-0 left-0 right-0 flex justify-center items-center w-full h-screen bg-black bg-opacity-50 ">
             <div className="relative p-4 w-full max-w-md max-h-full">
@@ -717,7 +769,8 @@ export default function MarketingDropDown() {
                           <select onChange={(e) => setCurrency(e.target.value)} value={currency} id="currency" className="mx-5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-16 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                             <option>$</option>
                             <option>Euro</option>
-                            <option>Corona</option>
+                            <option>DKK</option>
+                            <option>SEK</option>
                           </select>
                         </div>
                       </div>
@@ -734,10 +787,19 @@ export default function MarketingDropDown() {
                       </select>
                     </div>
                     <div className='w-1/2'>
-                      <label htmlFor="macAddress" className="flex mb-2  font-medium text-gray-900 dark:text-white">Date</label>
-                      <input type="text" onChange={(e) => setIsCountry(e.target.value)} value={isCountry} name="country" id="country" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter Your Country" required="" />
 
+
+                      <label htmlFor="country" className="flex mb-2 font-medium text-gray-900 dark:text-white">Country</label>
+                      <Select
+                        options={options}
+                        value={isCountry}
+                        onChange={changeHandler}
+                        className="text-black"
+                        name="country"
+                        inputId="country"
+                      />
                     </div>
+
                   </div>
 
                   <button type="submit"
@@ -756,9 +818,9 @@ export default function MarketingDropDown() {
             </div>
           </div>
         </form>
-        : ''}
+        : ''} */}
 
-      {isEditeCustomer ?
+      {/* {isEditeCustomer ?
         <form>
           <div id="popup-modal" tabindex="-1" className="fixed overflow-y-auto backdrop-blur-sm z-[9999] top-0 left-0 right-0 flex justify-center items-center w-full h-screen bg-black bg-opacity-50 ">
             <div className="relative p-4 w-full max-w-md max-h-full">
@@ -879,7 +941,7 @@ export default function MarketingDropDown() {
             </div>
           </div>
         </form>
-        : ''}
+        : ''} */}
     </>
   )
 }

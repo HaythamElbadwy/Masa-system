@@ -20,14 +20,32 @@ export default function Reseller() {
   const [pay, setPay] = useState(0);
   const [debt, setDebt] = useState(0);
   const [searchReseller, setSearchReseller] = useState('');
+  const [accountTotal, setAccountTotal] = useState(0);
+  const [deviceTotal, setDeviceTotal] = useState(0);
+  const [total, setTotal] = useState(0);
 
   function addReseller() {
     setIsAddReseller(true)
   }
+  useEffect(() => {
+    const accTotal = Number(accountNum) * Number(accountPrice);
+    const devTotal = Number(deviceNum) * Number(devicePrice);
+    setAccountTotal(accTotal);
+    setDeviceTotal(devTotal);
+    const fullTotal = accTotal + devTotal;
+    setTotal(fullTotal);
+  
 
+    const paid = Number(pay);
+    if (!isNaN(paid)) {
+      setDebt(fullTotal - paid);
+    }
+  }, [accountNum, accountPrice, deviceNum, devicePrice, pay]);
   ////////////////////////START ADD RESELLER//////////////////////////////
 
   const addNewReseller = async () => {
+    console.log(accountNum, accountPrice, deviceNum, devicePrice, pay, debt);
+    
     setIsLoading(true)
     try {
       const response = await fetch(`https://masa-system.vercel.app/api/v1/reseller/add`, {
@@ -76,8 +94,7 @@ export default function Reseller() {
 
   function handleAdd(e) {
     e.preventDefault();
-    if (isName == '' || accountNum == 0 || deviceNum == 0 || accountPrice == 0 || devicePrice == 0 || pay == 0
-      || debt == 0 || currency == '') {
+    if (isName == '') {
       toast("All faildes is Rquired!", {
         theme: 'dark'
       })
@@ -216,8 +233,8 @@ export default function Reseller() {
           <thead className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 '>
             <tr className={`${styles.reseller_header}`}>
               <th scope="col" className="px-6 py-3">Reseller</th>
-              <th scope="col" className="px-6 py-3">Account Num</th>
-              <th scope="col" className="px-6 py-3">Device Num</th>
+              <th scope="col" className="px-6 py-3">PlayLists</th>
+              <th scope="col" className="px-6 py-3">Boxes</th>
               <th scope="col" className="px-6 py-3">total debt</th>
               <th scope="col" className="px-6 py-3">Action</th>
             </tr>
@@ -269,18 +286,19 @@ export default function Reseller() {
 
                     <div className='flex items-center justify-center col-span-2'>
                       <div className='w-1/2 mx-5'>
-                        <label htmlFor="applicationNum" className="flex mb-2  font-medium text-gray-900 dark:text-white">Applications Num</label>
+                        <label htmlFor="applicationNum" className="flex mb-2  font-medium text-gray-900 dark:text-white">Playlists</label>
                         <input onChange={(e) => setAccountNum(e.target.value)} value={accountNum} type="number" name="applicationNum" id="applicationNum" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="" />
                       </div>
                       <div className='w-1/2 mr-[-17px]'>
-                        <label htmlFor="price" className="flex mb-2 font-medium text-gray-900 dark:text-white">Price</label>
+                        <label htmlFor="price" className="flex mb-2 font-medium text-gray-900 dark:text-white">Price/Piece</label>
                         <div className='flex'>
                           <input onChange={(e) => setAccountPrice(e.target.value)} value={accountPrice} type="number" name="price" id="price"
                             className="w-32 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="" />
                           <select onChange={(e) => setCurrency(e.target.value)} value={currency} id="countries" className="mx-5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-16 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                             <option>$</option>
                             <option>Euro</option>
-                            <option>Corona</option>
+                            <option>DKK</option>
+                            <option>SEK</option>
                           </select>
                         </div>
                       </div>
@@ -288,11 +306,11 @@ export default function Reseller() {
 
                     <div className='flex items-center justify-center col-span-2'>
                       <div className='w-1/2 mx-5'>
-                        <label htmlFor="deviceNum" className="flex mb-2  font-medium text-gray-900 dark:text-white">Device Num</label>
+                        <label htmlFor="deviceNum" className="flex mb-2  font-medium text-gray-900 dark:text-white">Boxes</label>
                         <input onChange={(e) => setDeviceNum(e.target.value)} value={deviceNum} type="number" name="deviceNum" id="deviceNum" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="" />
                       </div>
                       <div className='w-1/2 mr-[-17px]'>
-                        <label htmlFor="priceDevice" className="flex mb-2 font-medium text-gray-900 dark:text-white">Price</label>
+                        <label htmlFor="priceDevice" className="flex mb-2 font-medium text-gray-900 dark:text-white">Price/Piece</label>
                         <div className='flex'>
                           <input onChange={(e) => setDevicePrice(e.target.value)} value={devicePrice} type="number" name="price" id="priceDevice"
                             className="w-32 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="" />
@@ -307,7 +325,7 @@ export default function Reseller() {
                       </div>
                       <div className='w-1/2 mx-5'>
                         <label htmlFor="debt" className="flex mb-2  font-medium text-gray-900 dark:text-white">Debt</label>
-                        <input onChange={(e) => setDebt(e.target.value)} value={debt} type="number" name="debt" id="debt" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="" />
+                        <input  value={debt} type="number" name="debt" id="debt" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="" />
                       </div>
                     </div>
 

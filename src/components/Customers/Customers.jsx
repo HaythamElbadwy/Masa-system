@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useMemo, useRef } from 'react'
 import { useEffect } from 'react'
 import { useState } from 'react'
 import styles from './Customers.module.css';
@@ -6,8 +6,10 @@ import { Pagination } from 'flowbite-react';
 import PhoneInput from "react-phone-input-2";
 import 'react-phone-input-2/lib/style.css';
 import { toast } from 'react-toastify';
-
-
+import Select from 'react-select';
+import countryList from 'react-select-country-list';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 export default function Customers() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -34,7 +36,43 @@ export default function Customers() {
   const [isDateFilter, setIsDateFilter] = useState('');
   const [customerId, setCustomerId] = useState();
   const [searchCustomer, setSearchCustomer] = useState('');
-  
+  const [from, setFrom] = useState('');
+  const [to, setTo] = useState('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [dates, setDates] = useState([null, null]);
+  const datePickerRef = useRef(null);
+  const options = useMemo(() => countryList().getData(), []);
+
+  const handleDateChange = (update) => {
+    setDates(update);
+
+    const [start, end] = update;
+    if (start) console.log('Start Date:', start.toISOString().slice(0, 10));
+    if (end) console.log('End Date:', end.toISOString().slice(0, 10));
+
+    if (end) {
+      setShowDatePicker(false);
+      setFrom(start)
+      setTo(end);
+      setDates([null, null])
+      getCustomer(currentPage, isAppFilter, isProviderFilter, start, end, isStatueFilter)
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (datePickerRef.current && !datePickerRef.current.contains(event.target)) {
+        setShowDatePicker(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const changeHandler = value => {
+    setIsCountry(value);
+  };
+
   function addCustomer() {
     setIsAddCustomer(true)
   }
@@ -58,10 +96,10 @@ export default function Customers() {
   function handleFilterApp(value) {
     if (value == "App") {
       setIsAppFilter('')
-      getCustomer(currentPage, '', isProviderFilter, isDateFilter, isStatueFilter)
+      getCustomer(currentPage, '', isProviderFilter, from, to, isStatueFilter)
     } else {
       setIsAppFilter(value)
-      getCustomer(currentPage, value, isProviderFilter, isDateFilter, isStatueFilter)
+      getCustomer(currentPage, value, isProviderFilter, from, to, isStatueFilter)
     }
 
   }
@@ -69,10 +107,10 @@ export default function Customers() {
   function handleFilterProvider(value) {
     if (value == "Provider") {
       setIsProviderFilter('')
-      getCustomer(currentPage, isAppFilter, '', isDateFilter, isStatueFilter)
+      getCustomer(currentPage, isAppFilter, '', from, to, isStatueFilter)
     } else {
       setIsProviderFilter(value)
-      getCustomer(currentPage, isAppFilter, value, isDateFilter, isStatueFilter)
+      getCustomer(currentPage, isAppFilter, value, from, to, isStatueFilter)
     }
 
   }
@@ -80,24 +118,15 @@ export default function Customers() {
   function handleFilterStatus(value) {
     if (value == "Status") {
       setIsStatueFilter('')
-      getCustomer(currentPage, isAppFilter, isProviderFilter, isDateFilter, '')
+      getCustomer(currentPage, isAppFilter, isProviderFilter, from, to, '')
     } else {
       setIsStatueFilter(value)
-      getCustomer(currentPage, isAppFilter, isProviderFilter, isDateFilter, value)
+      getCustomer(currentPage, isAppFilter, isProviderFilter, from, to, value)
     }
 
   }
 
-  function handleFilterDate(value) {
-    if (value == "") {
-      setIsDateFilter('')
-      getCustomer(currentPage, isAppFilter, isProviderFilter, '', isStatueFilter)
-    } else {
-      setIsDateFilter(value)
-      getCustomer(currentPage, isAppFilter, isProviderFilter, value, isStatueFilter)
-    }
 
-  }
 
   /////////////////////// START GET PROVIDER FILTER FUNCTION///////////////////////
   const getProvider = async () => {
@@ -189,10 +218,10 @@ export default function Customers() {
   /////////////////////// END GET APPLICATIONS FILTER FUNCTION////////////////
 
   /////////////////////// START GET APPLICATIONS FILTER FUNCTION////////////////
-  const getCustomer = async (page, isAppFilter, isProviderFilter, isDateFilter, isStatueFilter) => {
+  const getCustomer = async (page, isAppFilter, isProviderFilter, from, to, isStatueFilter) => {
 
     try {
-      const response = await fetch(`https://masa-system.vercel.app/api/v1/customer/get?page=${page}&app=${isAppFilter}&statue=${isStatueFilter}&provider=${isProviderFilter}&date=${isDateFilter}&employee=Admin&employeeId=`, {
+      const response = await fetch(`https://masa-system.vercel.app/api/v1/customer/get?page=${page}&app=${isAppFilter}&statue=${isStatueFilter}&provider=${isProviderFilter}&from=${from}&to=${to}&employee=Admin&employeeId=`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -208,7 +237,7 @@ export default function Customers() {
         setCurrentPage(data.page);
         setAllPage(data.totalPages)
         console.log(data);
-        
+
       } else {
         switch (response.status) {
           case 500:
@@ -237,10 +266,10 @@ export default function Customers() {
   };
   const onPageChange = (page) => {
     setCurrentPage(page)
-    getCustomer(page, isAppFilter, isProviderFilter, isStatueFilter, isDateFilter)
+    getCustomer(page, isAppFilter, isProviderFilter, from, to, isStatueFilter)
   };
   useEffect(() => {
-    getCustomer(1, isAppFilter, isProviderFilter, isStatueFilter, isDateFilter)
+    getCustomer(1, isAppFilter, isProviderFilter, from, to, isStatueFilter)
   }, [])
   /////////////////////// END GET APPLICATIONS FILTER FUNCTION////////////////
 
@@ -255,13 +284,13 @@ export default function Customers() {
           'Content-Type': 'application/json',
           'authorization': `sysOM0${localStorage.getItem('authToken')}`
         },
-        body: JSON.stringify({ name: isName, email, phone: '+' + phone, mac_address: isMacAddress, app, provider, price, currency, statue, country: isCountry })
+        body: JSON.stringify({ name: isName, email, phone: '+' + phone, mac_address: isMacAddress, app, provider, price, currency, statue, country: isCountry.label })
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        getCustomer(currentPage, isAppFilter, isProviderFilter, isStatueFilter, isDateFilter)
+        getCustomer(currentPage, isAppFilter, isProviderFilter, from, to, isStatueFilter)
         toast.success(data.message, {
           theme: 'dark'
         })
@@ -312,7 +341,7 @@ export default function Customers() {
       return
     }
 
-    if (isName == '' || email == '' || phone == '' || isMacAddress == '' || app == ''
+    if (isName == '' || isMacAddress == '' || app == ''
       || provider == '' || price == '' || statue == '') {
       toast("All faildes is Rquired!", {
         theme: 'dark'
@@ -357,7 +386,7 @@ export default function Customers() {
       const data = await response.json();
 
       if (response.ok) {
-        getCustomer(currentPage, isAppFilter, isProviderFilter, isStatueFilter, isDateFilter)
+        getCustomer(currentPage, isAppFilter, isProviderFilter, from, to , isStatueFilter)
         toast.success(data.message, {
           theme: 'dark'
         })
@@ -404,7 +433,7 @@ export default function Customers() {
     setSearchCustomer(macAddress);
 
     if (macAddress === '') {
-      getCustomer(currentPage, isAppFilter, isProviderFilter, isStatueFilter, isDateFilter); // Fetch all transactions if search is cleared
+      getCustomer(currentPage, isAppFilter, isProviderFilter, from, to , isStatueFilter); // Fetch all transactions if search is cleared
       return;
     }
 
@@ -532,13 +561,30 @@ export default function Customers() {
                   ))}
                 </select>
               </th>
-              <th scope="col" className="py-3">Provider Price</th>
+              <th scope="col" className="py-3">Price</th>
               <th scope="col" className="py-3">
-                <input
-                  type="date"
-                  className="border bg-[#d1d1d1] border-gray-300 rounded py-1 text-sm focus:outline-none"
-                  onChange={(e) => handleFilterDate(e.target.value)} />
-
+                <div className="relative" ref={datePickerRef}>
+                  <span
+                    className=" cursor-pointer"
+                    onClick={() => setShowDatePicker(!showDatePicker)}
+                  >
+                    Select Date Range
+                  </span>
+                  {showDatePicker && (
+                    <div className="absolute z-10">
+                      <DatePicker
+                        selected={dates[0]}
+                        onChange={handleDateChange}
+                        startDate={dates[0]}
+                        endDate={dates[1]}
+                        selectsRange
+                        inline
+                        dateFormat="yyyy-MM-dd"
+                        placeholderText="Select date range"
+                      />
+                    </div>
+                  )}
+                </div>
               </th>
               <th scope="col" className="py-3">
                 <select
@@ -572,7 +618,7 @@ export default function Customers() {
                 <td scope="col" className="py-3">{customers.country}</td>
                 <td scope="col" className="py-3">{customers.provider}</td>
                 <td scope="col" className="py-3">{customers.price + '' + customers.currency}</td>
-                <td scope="col" className="py-3">{customers.createdAt}</td>
+                <td scope="col" className="py-3">{new Date(customers.createdAt).toISOString().split('T')[0]}</td>
                 <td scope="col" className="py-3">{customers.statue}</td>
                 <td scope="col" className="py-3">
                   <i onClick={() => editeCustomerPopUp(customers)} className={`${styles.icon_edite} fa-solid fa-pen mx-3 cursor-pointer`}></i>
@@ -675,7 +721,8 @@ export default function Customers() {
                           <select onChange={(e) => setCurrency(e.target.value)} value={currency} id="currency" className="mx-5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-16 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                             <option>$</option>
                             <option>Euro</option>
-                            <option>krona</option>
+                            <option>DKK</option>
+                            <option>SEK</option>
                           </select>
                         </div>
                       </div>
@@ -693,8 +740,15 @@ export default function Customers() {
                     </div>
 
                     <div className='w-1/2'>
-                      <label htmlFor="country" className="flex mb-2  font-medium text-gray-900 dark:text-white">Country</label>
-                      <input type="text" onChange={(e) => setIsCountry(e.target.value)} value={isCountry} name="country" id="country" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter Your Country" required="" />
+                      <label htmlFor="country" className="flex mb-2 font-medium text-gray-900 dark:text-white">Country</label>
+                      <Select
+                        options={options}
+                        value={isCountry}
+                        onChange={changeHandler}
+                        className="text-black"
+                        name="country"
+                        inputId="country"
+                      />
                     </div>
 
                   </div>
