@@ -30,8 +30,8 @@ export default function Navbar() {
 
       if (response.status === 200) {
         setUserName(data.info.name)
-       
-        
+
+
       } else {
 
         toast.error(data.message, {
@@ -40,7 +40,7 @@ export default function Navbar() {
       }
     } catch (error) {
       console.error('Error during login:', error);
-    } 
+    }
   };
   useEffect(() => {
     adminInfo()
@@ -49,13 +49,19 @@ export default function Navbar() {
   return (
     <nav className=" flex justify-between items-center fixed top-0 w-full z-50 bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
       <div className={`${styles.logo_sidebar} rtl:justify-end ml-6`}>
-
-        <Link className="flex ms-2 md:me-24" to={'admin'}>
-          <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">
-            <img src={logo} className='w-20' alt="" />
-          </span>
-        </Link>
-
+        {accessToken == 'c3b0a9e1d5fa4c4f56e84d201d579e92' ?
+          <Link className="flex ms-2 md:me-24" to={'admin'}>
+            <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">
+              <img src={logo} className='w-20' alt="" />
+            </span>
+          </Link>
+          :
+          <div className="flex ms-2 md:me-24 cursor-default">
+            <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">
+              <img src={logo} className='w-20' alt="" />
+            </span>
+          </div>
+        }
       </div>
       <div>
         <ul className='flex'>
