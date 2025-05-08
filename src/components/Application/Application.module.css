@@ -1,1 +1,5 @@
-.Application {}
+.addApplication:hover {
+    background-color: white !important;
+    color: black !important;
+    border: 1px solid black
+}

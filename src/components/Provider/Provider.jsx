@@ -96,11 +96,7 @@ export default function Provider() {
 
       const data = await response.json();
       if (response.ok) {
-        toast.success(data.message, {
-          theme: "dark"
-        });
         setIsAllProvider(data.providers);
-        console.log(data);
       } else {
         switch (response.status) {
           case 500:
@@ -227,10 +223,10 @@ export default function Provider() {
           </div>
           <button type="button"
             onClick={addProvider}
-            className="mx-3 text-white bg-black hover:bg-black focus:outline-none focus:ring-4
+            className={`${styles.addProvider} mx-3 text-white bg-black focus:outline-none focus:ring-4
                focus:ring-gray-300 font-medium rounded-lg text-sm pl-5 pr-1 py-2.5 
             dark:bg-gray-800 dark:hover:bg-gray-700
-             dark:focus:ring-gray-700 dark:border-gray-700">
+             dark:focus:ring-gray-700 dark:border-gray-700`}>
             <i className="fa-solid fa-plus mr-4"></i>
           </button>
         </div>

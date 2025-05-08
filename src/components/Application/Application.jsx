@@ -37,15 +37,7 @@ export default function Application() {
 
 
       if (response.ok) {
-
-        toast.success(data.message, {
-          theme: "dark"
-        });
         setIsAllApplications(data.applications);
-        console.log(data);
-
-
-
       } else {
         switch (response.status) {
           case 500:
@@ -232,10 +224,10 @@ export default function Application() {
           </div>
           <button type="button"
             onClick={addApplications}
-            className="mx-3 text-white bg-black hover:bg-black focus:outline-none focus:ring-4
-             focus:ring-gray-300 font-medium rounded-lg text-sm pl-5 pr-1 py-2.5 
-          dark:bg-gray-800 dark:hover:bg-gray-700
-           dark:focus:ring-gray-700 dark:border-gray-700">
+            className={`${styles.addApplication} mx-3 text-white bg-black focus:outline-none focus:ring-4
+                           focus:ring-gray-300 font-medium rounded-lg text-sm pl-5 pr-1 py-2.5 
+                        dark:bg-gray-800 dark:hover:bg-gray-700
+                         dark:focus:ring-gray-700 dark:border-gray-700`}>
             <i className="fa-solid fa-plus mr-4"></i>
           </button>
         </div>
