@@ -1,12 +1,10 @@
 import React from 'react'
 import { useEffect } from 'react'
 import { useState } from 'react'
-import styles from './ResellerSupportEmplyees.module.css';
-import { toast } from 'react-toastify';
+import styles from './AllReseller.module.css';
 import { Link } from 'react-router-dom';
 
-export default function ResellerSupportEmplyees() {
-
+export default function AllReseller() {
   const [isAddReseller, setIsAddReseller] = useState(false);
   const [isName, setIsName] = useState();
   const [isLoading, setIsLoading] = useState(false);
@@ -23,101 +21,11 @@ export default function ResellerSupportEmplyees() {
   const [deviceTotal, setDeviceTotal] = useState(0);
   const [total, setTotal] = useState(0);
 
-  function addReseller() {
-    setIsAddReseller(true)
-  }
-
-    useEffect(() => {
-      const accTotal = Number(accountNum) * Number(accountPrice);
-      const devTotal = Number(deviceNum) * Number(devicePrice);
-      setAccountTotal(accTotal);
-      setDeviceTotal(devTotal);
-      const fullTotal = accTotal + devTotal;
-      setTotal(fullTotal);
-    
-  
-      const paid = Number(pay);
-      if (!isNaN(paid)) {
-        setDebt(fullTotal - paid);
-      }
-    }, [accountNum, accountPrice, deviceNum, devicePrice, pay]);
-  ////////////////////////START ADD RESELLER//////////////////////////////
-
-  const addNewReseller = async () => {
-    setIsLoading(true)
-    try {
-      const response = await fetch(`https://masa-system.vercel.app/api/v1/reseller/add`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'authorization': `sysOM0${localStorage.getItem('authToken')}`
-        },
-        body: JSON.stringify({ name: isName, accountNum, deviceNum, accountPrice, devicePrice, pay, debt, currency })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        getReseller()
-        toast.success(data.message, {
-          theme: 'dark'
-        })
-        setIsAddReseller(false)
-        clearInput()
-      } else {
-        switch (response.status) {
-          case 500:
-            toast.error(data.message, {
-              theme: "dark"
-            });
-            break;
-          case 404:
-            toast.error(data.message, {
-              theme: "dark"
-            });
-            break;
-          default:
-            toast('An error occurred. Please try again.', {
-              theme: "dark"
-            });
-        }
-      }
-
-    } catch (err) {
-      console.error("Error Saving Customer:", err);
-    } finally {
-      setIsLoading(false)
-    }
-  };
-
-  function handleAdd(e) {
-    e.preventDefault();
-    if (isName == '') {
-      toast("All faildes is Rquired!", {
-        theme: 'dark'
-      })
-    } else {
-      addNewReseller()
-    }
-  }
-
-  function clearInput() {
-    setIsName('');
-    setAccountNum(0)
-    setDeviceNum(0)
-    setAccountPrice(0)
-    setDevicePrice(0)
-    setPay(0)
-    setDebt(0)
-
-  }
-  ////////////////////////END ADD RESELLER//////////////////////////////
-
   /////////////////////// START GET RESELLER FUNCTION////////////////
   const getReseller = async () => {
 
     try {
-      const response = await fetch(`https://masa-system.vercel.app/api/v1/reseller/get`, {
+      const response = await fetch(`https://masa-system.vercel.app/api/v1/reseller/get?type=all`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -204,6 +112,8 @@ export default function ResellerSupportEmplyees() {
   };
 
   ///////////////////////////END SEARCH CUSTOMERS/////////////////////////////////////
+
+
   return (
     <>
       <section className='pl-10 pr-10 mb-20'>
@@ -219,14 +129,6 @@ export default function ResellerSupportEmplyees() {
               </div>
               <input onChange={(e) => getSearchReseller(e.target.value)} type="search" id="default-search" className="block w-full h-11 p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search By Name" required />
             </div>
-            <button type="button"
-              onClick={addReseller}
-              className="mx-3 text-black hover:text-white border
-                     border-black hover:bg-black focus:ring-4 focus:outline-none
-                      focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-black dark:text-black dark:hover:text-white
-                       dark:hover:bg-black">
-              <i className="fa-solid fa-plus mr-4"></i>
-              Add Reseller</button>
           </div>
           <table className='table-auto w-full mt-4'>
             <thead className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 '>
@@ -324,7 +226,7 @@ export default function ResellerSupportEmplyees() {
                         </div>
                         <div className='w-1/2 mx-5'>
                           <label htmlFor="debt" className="flex mb-2  font-medium text-gray-900 dark:text-white">Debt</label>
-                          <input  value={debt} type="number" name="debt" id="debt" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="" />
+                          <input value={debt} type="number" name="debt" id="debt" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="" />
                         </div>
                       </div>
 

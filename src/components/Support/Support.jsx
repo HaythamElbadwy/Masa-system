@@ -4,9 +4,10 @@ import { useState } from 'react'
 import styles from './Support.module.css';
 import ResellerSupportEmplyees from '../ResellerSupportEmplyees/ResellerSupportEmplyees';
 import CustomerSupportEmplyees from '../CustomerSupportEmplyees/CustomerSupportEmplyees';
+import AllReseller from '../AllReseller/AllReseller';
 
 export default function Support() {
-  const [chooseAdmin, setChooseAdmin] = useState('Reseller');
+  const [chooseAdmin, setChooseAdmin] = useState('My Reseller');
   const [openDropDown, setOpenDropDown] = useState(false);
 
   const accessToken = localStorage.getItem('accessToken');
@@ -32,15 +33,17 @@ export default function Support() {
   };
 
   // Admin options list
-  const adminOptions = ['Reseller', 'Customers',];
+  const adminOptions = ['My Reseller', 'Customers', 'All Reseller'];
 
   // Function to render the selected component based on the option
   const renderComponent = () => {
     switch (chooseAdmin) {
-      case 'Reseller':
+      case 'My Reseller':
         return <ResellerSupportEmplyees />;
       case 'Customers':
         return <CustomerSupportEmplyees />;
+        case 'All Reseller':
+          return <AllReseller />;
 
       default:
         return <div>No Component Found</div>;
