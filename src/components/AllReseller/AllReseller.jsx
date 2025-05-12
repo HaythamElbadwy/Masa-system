@@ -118,7 +118,7 @@ export default function AllReseller() {
     <>
       <section className='pl-10 pr-10 mb-20'>
 
-        <div className={`${styles.resellerSupport_table} `}>
+        <div className={`${styles.allReseller_table} `}>
           <div className='flex'>
             <div className={`${styles.searchInput} relative w-[50%] m-auto`}>
               <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
@@ -132,7 +132,7 @@ export default function AllReseller() {
           </div>
           <table className='table-auto w-full mt-4'>
             <thead className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 '>
-              <tr className={`${styles.resellerSupport_header}`}>
+              <tr className={`${styles.allReseller_header}`}>
                 <th scope="col" className="py-3">Reseller</th>
                 <th scope="col" className="py-3">PlaysLists</th>
                 <th scope="col" className="py-3">Boxes</th>

@@ -1,4 +1,4 @@
-.resellerSupport_table {
+.allReseller_table {
     border: 0.84px solid rgba(209, 209, 209, 1);
     border-radius: 10px;
     padding: 10px;
@@ -12,7 +12,7 @@
     color: #285190;
 
 }
-.resellerSupport_header{
+.allReseller_header{
     background-color:  #d1d1d1;
     color: #7C7C7C;
 }

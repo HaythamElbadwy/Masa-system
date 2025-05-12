@@ -22,7 +22,9 @@ export default function ResellerDetails() {
   const [pay, setPay] = useState(0);
   const [isPay, setIsPay] = useState(0);
   const [debt, setDebt] = useState(0);
+  const [isAddDebt, setIsAddDebt] = useState(0);
   const [isPayPopUp, setIsPayPopUp] = useState(false);
+  const [isDebtPopUp, setIsDebtPopUp] = useState(false);
   const [totalDebt, setTotalDebt] = useState(0);
   const [isDateFilter, setIsDateFilter] = useState('');
   const [isAllResellerCustomer, setIsAllResellerCustomer] = useState([]);
@@ -86,6 +88,10 @@ export default function ResellerDetails() {
 
   function addNewSubscribePopUp() {
     setIsAddNewSubscribe(true)
+  }
+
+  function debtPopUp() {
+    setIsDebtPopUp(true)
   }
 
   // function editeSubscribePopUp(subscribes) {
@@ -160,6 +166,75 @@ export default function ResellerDetails() {
   // }
 
   ////////////////////////////END EDITE RESELLER CUSTOMER//////////////////////////////
+
+  ////////////////////////////START DEBT FUNCTION/////////////////
+
+  const addDebt = async () => {
+
+    setIsLoading(true)
+    try {
+      const response = await fetch(`https://masa-system.vercel.app/api/v1/reseller/subscribe/${id}/debt`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'authorization': `sysOM0${localStorage.getItem('authToken')}`
+        },
+        body: JSON.stringify({
+          accountNum: 0, deviceNum: 0, accountPrice: 0
+          , devicePrice: 0, pay: 0, debt: isAddDebt
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        getResellerCustomer(currentPage, from, to)
+        toast.success(data.message, {
+          theme: 'dark'
+        })
+        setIsDebtPopUp(false)
+        clearInputDebt()
+      } else {
+        switch (response.status) {
+          case 500:
+            toast.error(data.message, {
+              theme: "dark"
+            });
+            break;
+          case 404:
+            toast.error(data.message, {
+              theme: "dark"
+            });
+            break;
+          default:
+            toast('An error occurred. Please try again.', {
+              theme: "dark"
+            });
+        }
+      }
+
+    } catch (err) {
+      console.error("Error Saving Customer:", err);
+    } finally {
+      setIsLoading(false)
+    }
+  };
+
+  function handleAddDebt(e) {
+    e.preventDefault();
+    if (isAddDebt == 0) {
+      toast("All faildes is Rquired!", {
+        theme: 'dark'
+      })
+    } else {
+      addDebt()
+    }
+  }
+
+  function clearInputDebt() {
+    setIsAddDebt(0)
+  }
+  ////////////////////////END DEBT FUNCTION//////////////////////////////
 
   ////////////////////////////START PAY FUNCTION/////////////////
 
@@ -418,14 +493,25 @@ export default function ResellerDetails() {
               <i className="fa-solid fa-plus mr-4"></i>
               Add New Subscribe</button>
 
-            <button type="button"
-              onClick={payPopUp}
-              className="mx-3 text-black hover:text-white border
+            <div>
+              <button type="button"
+                onClick={debtPopUp}
+                className="mx-3 text-black hover:text-white border
               border-black hover:bg-black focus:ring-4 focus:outline-none
                focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-black dark:text-black dark:hover:text-white
                 dark:hover:bg-black">
-              <i className="fa-solid fa-plus mr-4"></i>
-              PAY</button>
+                <i className="fa-solid fa-plus mr-4"></i>
+                Debt</button>
+
+              <button type="button"
+                onClick={payPopUp}
+                className="mx-3 text-black hover:text-white border
+                          border-black hover:bg-black focus:ring-4 focus:outline-none
+                           focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-black dark:text-black dark:hover:text-white
+                            dark:hover:bg-black">
+                <i className="fa-solid fa-plus mr-4"></i>
+                PAY</button>
+            </div>
           </div>
           <table className='table-auto w-full mt-4'>
             <thead className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 '>
@@ -595,7 +681,7 @@ export default function ResellerDetails() {
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                     Pay
                   </h3>
-                  <button type="button" onClick={() => setIsPayPopUp(false)} className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="crud-modal">
+                  <button type="button" onClick={() => {setIsPayPopUp(false) ; clearInput() ; clearInputPay()}} className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="crud-modal">
                     <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                       <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
                     </svg>
@@ -617,7 +703,49 @@ export default function ResellerDetails() {
                       <i className='fas fa-spinner fa-spin text-2xl'></i>
                       : 'Add'}
                   </button>
-                  <button type="submit" onClick={() => setIsPayPopUp(false)}
+                  <button type="submit" onClick={() => {setIsPayPopUp(false) ; clearInput() ; clearInputPay()}}
+                    className="text-white mr-5 inline-flex items-center bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-700">
+                    Cancel</button>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+        : ''}
+
+      {isDebtPopUp ?
+        <form>
+          <div id="popup-modal" tabindex="-1" className="fixed overflow-y-auto backdrop-blur-sm z-[9999] top-0 left-0 right-0 flex justify-center items-center w-full h-screen bg-black bg-opacity-50 ">
+            <div className="relative p-4 w-full max-w-md max-h-full">
+              <div className="relative bg-white rounded-lg shadow-sm dark:bg-gray-700 w-[500px]">
+                <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    Debt
+                  </h3>
+                  <button type="button" onClick={() => { setIsDebtPopUp(false); clearInput() ; clearInputPay() }} className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="crud-modal">
+                    <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                    </svg>
+                    <span className="sr-only">Close modal</span>
+                  </button>
+                </div>
+                <div className="px-4 md:p-5">
+                  <div className="grid gap-4 mb-4 grid-cols-2">
+                    <div className='col-span-2 mx-5'>
+                      <label htmlFor="pay" className="flex mb-2  font-medium text-gray-900 dark:text-white">Debt</label>
+                      <input onChange={(e) => setIsAddDebt(e.target.value)} value={isAddDebt} type="number" name="pay" id="pay" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="" />
+                    </div>
+                  </div>
+
+                  <button type="submit"
+                    onClick={handleAddDebt}
+                    className="text-white mr-5 inline-flex items-center bg-black hover:bg-black focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-black dark:hover:bg-black dark:focus:ring-black">
+                    {isLoading ?
+                      <i className='fas fa-spinner fa-spin text-2xl'></i>
+                      : 'Add'}
+                  </button>
+                  <button type="submit" onClick={() => { setIsDebtPopUp(false); clearInput() ; clearInputPay() }}
                     className="text-white mr-5 inline-flex items-center bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-700">
                     Cancel</button>
 
