@@ -4,6 +4,7 @@ import { useState } from 'react'
 import styles from './ResellerSupportEmplyees.module.css';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
+import { no } from 'intl-tel-input/i18n';
 
 export default function ResellerSupportEmplyees() {
 
@@ -22,25 +23,27 @@ export default function ResellerSupportEmplyees() {
   const [accountTotal, setAccountTotal] = useState(0);
   const [deviceTotal, setDeviceTotal] = useState(0);
   const [total, setTotal] = useState(0);
+  const [isNote, setIsNote] = useState('');
 
   function addReseller() {
     setIsAddReseller(true)
   }
 
-    useEffect(() => {
-      const accTotal = Number(accountNum) * Number(accountPrice);
-      const devTotal = Number(deviceNum) * Number(devicePrice);
-      setAccountTotal(accTotal);
-      setDeviceTotal(devTotal);
-      const fullTotal = accTotal + devTotal;
-      setTotal(fullTotal);
-    
-  
-      const paid = Number(pay);
-      if (!isNaN(paid)) {
-        setDebt(fullTotal - paid);
-      }
-    }, [accountNum, accountPrice, deviceNum, devicePrice, pay]);
+
+  useEffect(() => {
+    const accTotal = Number(accountNum) * Number(accountPrice);
+    const devTotal = Number(deviceNum) * Number(devicePrice);
+    setAccountTotal(accTotal);
+    setDeviceTotal(devTotal);
+    const fullTotal = accTotal + devTotal;
+    setTotal(fullTotal);
+
+
+    const paid = Number(pay);
+    if (!isNaN(paid)) {
+      setDebt(fullTotal - paid);
+    }
+  }, [accountNum, accountPrice, deviceNum, devicePrice, pay]);
   ////////////////////////START ADD RESELLER//////////////////////////////
 
   const addNewReseller = async () => {
@@ -52,7 +55,7 @@ export default function ResellerSupportEmplyees() {
           'Content-Type': 'application/json',
           'authorization': `sysOM0${localStorage.getItem('authToken')}`
         },
-        body: JSON.stringify({ name: isName, accountNum, deviceNum, accountPrice, devicePrice, pay, debt, currency })
+        body: JSON.stringify({ name: isName, accountNum, deviceNum, accountPrice, devicePrice, pay, debt, currency, note: isNote })
       });
 
       const data = await response.json();
@@ -130,6 +133,9 @@ export default function ResellerSupportEmplyees() {
 
       if (response.ok) {
         setIsAllReseller(data.resellers);
+        // setIsNote(data.resellers.note);
+        // console.log();
+        
       } else {
         switch (response.status) {
           case 500:
@@ -324,10 +330,13 @@ export default function ResellerSupportEmplyees() {
                         </div>
                         <div className='w-1/2 mx-5'>
                           <label htmlFor="debt" className="flex mb-2  font-medium text-gray-900 dark:text-white">Debt</label>
-                          <input  value={debt} type="number" name="debt" id="debt" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="" />
+                          <input value={debt} type="number" name="debt" id="debt" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="" />
                         </div>
                       </div>
-
+                      <div className="col-span-2 pl-5">
+                        <label htmlFor="name" className="flex mb-2  font-medium text-gray-900 dark:text-white">Note</label>
+                        <textarea type="text" onChange={(e) => setIsNote(e.target.value)} value={isNote} name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter Your Note" required="" />
+                      </div>
                     </div>
                     <button type="submit"
                       onClick={handleAdd}
@@ -346,6 +355,9 @@ export default function ResellerSupportEmplyees() {
             </div>
           </form>
           : ''}
+
+
+
       </section>
     </>
   )

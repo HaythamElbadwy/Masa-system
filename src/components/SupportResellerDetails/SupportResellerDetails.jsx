@@ -40,6 +40,8 @@ export default function SupportResellerDetails() {
   const [dates, setDates] = useState([null, null]);
   const [isResellerName, setIsResellerName] = useState("");
   const datePickerRef = useRef(null);
+  const [isNote, setIsNote] = useState('');
+  const [isNotePopUp, setIsNotePopUp] = useState(false);
   const { id } = useParams();
 
   const handleDateChange = (update) => {
@@ -91,6 +93,11 @@ export default function SupportResellerDetails() {
 
   function debtPopUp() {
     setIsDebtPopUp(true)
+  }
+
+  function notePopUp(note) {
+    setIsNotePopUp(true)
+    setIsNote(note)
   }
 
   function addNewSubscribePopUp() {
@@ -191,7 +198,7 @@ export default function SupportResellerDetails() {
           'Content-Type': 'application/json',
           'authorization': `sysOM0${localStorage.getItem('authToken')}`
         },
-        body: JSON.stringify({ accountNum, deviceNum, accountPrice, devicePrice, pay, debt, currency })
+        body: JSON.stringify({ accountNum, deviceNum, accountPrice, devicePrice, pay, debt, currency, note: isNote })
       });
 
       const data = await response.json();
@@ -249,6 +256,7 @@ export default function SupportResellerDetails() {
     setDevicePrice(0);
     setPay(0);
     setDebt(0);
+    setIsNote();
 
   }
   ////////////////////////END ADD RESELLER//////////////////////////////
@@ -274,7 +282,7 @@ export default function SupportResellerDetails() {
         setAllPage(data.totalPages);
         setTotalDebt(data.totalDebt)
         setIsResellerName(data.reseller_name)
-        // console.log(data);
+        setIsNote(data.subscribes.note)
 
       } else {
         switch (response.status) {
@@ -561,6 +569,7 @@ export default function SupportResellerDetails() {
                 <th scope="col" className="px-6 py-3">Price</th>
                 <th scope="col" className="px-6 py-3">Pay</th>
                 <th scope="col" className="px-6 py-3">Debt</th>
+                <th scope="col" className="px-6 py-3">Note</th>
                 {/* <th scope="col" className="px-6 py-3">Actions</th> */}
               </tr>
             </thead>
@@ -574,6 +583,9 @@ export default function SupportResellerDetails() {
                   <td scope="col" className="px-6 py-3 text-[#3E3D3D]">{subscribes.devicePrice}{subscribes.currency ? subscribes.currency : ''}</td>
                   <td scope="col" className="px-6 py-3 text-[#3E3D3D]">{subscribes.pay}</td>
                   <td scope="col" className="px-6 py-3 text-[#3E3D3D]">{subscribes.debt}</td>
+                  <td scope="col" className="px-6 py-3 text-[#3E3D3D]">
+                    <i className="fa-solid fa-circle-info cursor-pointer" onClick={() => notePopUp(subscribes.note)}></i>
+                  </td>
                   {/* <td scope="col" className="px-6 py-3 text-[#3E3D3D]">
                     <i onClick={() => editeSubscribePopUp(subscribes)} className={`${styles.icon_edite} fa-solid fa-pen mx-3 cursor-pointer`}></i>
                   </td> */}
@@ -664,6 +676,10 @@ export default function SupportResellerDetails() {
                         <label htmlFor="debt" className="flex mb-2  font-medium text-gray-900 dark:text-white">Debt</label>
                         <input value={debt} type="number" name="debt" id="debt" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="" />
                       </div>
+                    </div>
+                    <div className="col-span-2 pl-5">
+                      <label htmlFor="name" className="flex mb-2  font-medium text-gray-900 dark:text-white">Note</label>
+                      <textarea type="text" onChange={(e) => setIsNote(e.target.value)} value={isNote} name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter Your Note" required="" />
                     </div>
                   </div>
 
@@ -763,6 +779,36 @@ export default function SupportResellerDetails() {
                     className="text-white mr-5 inline-flex items-center bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-700">
                     Cancel</button>
 
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+        : ''}
+
+      {isNotePopUp ?
+        <form>
+          <div id="popup-modal" tabindex="-1" className="fixed overflow-y-auto backdrop-blur-sm z-[9999] top-0 left-0 right-0 flex justify-center items-center w-full h-screen bg-black bg-opacity-50 ">
+            <div className="relative p-4 w-full max-w-md max-h-full">
+              <div className="relative bg-white rounded-lg shadow-sm dark:bg-gray-700 w-[500px]">
+                <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    Note
+                  </h3>
+                  <button type="button" onClick={() => { setIsNotePopUp(false) ; clearInput() }} className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="crud-modal">
+                    <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                    </svg>
+                    <span className="sr-only">Close modal</span>
+                  </button>
+                </div>
+                <div className="px-4 md:p-5">
+                  <div className="grid gap-4 mb-4 grid-cols-2">
+                    <div className='col-span-2 mx-5'>
+                      <label htmlFor="note" className="flex mb-2  font-medium text-gray-900 dark:text-white">Note</label>
+                      <textarea readOnly value={isNote} type="text" name="note" id="note" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

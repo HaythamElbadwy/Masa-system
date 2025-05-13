@@ -23,10 +23,13 @@ export default function Reseller() {
   const [accountTotal, setAccountTotal] = useState(0);
   const [deviceTotal, setDeviceTotal] = useState(0);
   const [total, setTotal] = useState(0);
+  const [isNote, setIsNote] = useState('');
 
   function addReseller() {
     setIsAddReseller(true)
   }
+
+
   useEffect(() => {
     const accTotal = Number(accountNum) * Number(accountPrice);
     const devTotal = Number(deviceNum) * Number(devicePrice);
@@ -34,7 +37,7 @@ export default function Reseller() {
     setDeviceTotal(devTotal);
     const fullTotal = accTotal + devTotal;
     setTotal(fullTotal);
-  
+
 
     const paid = Number(pay);
     if (!isNaN(paid)) {
@@ -45,7 +48,7 @@ export default function Reseller() {
 
   const addNewReseller = async () => {
     console.log(accountNum, accountPrice, deviceNum, devicePrice, pay, debt);
-    
+
     setIsLoading(true)
     try {
       const response = await fetch(`https://masa-system.vercel.app/api/v1/reseller/add`, {
@@ -54,7 +57,7 @@ export default function Reseller() {
           'Content-Type': 'application/json',
           'authorization': `sysOM0${localStorage.getItem('authToken')}`
         },
-        body: JSON.stringify({ name: isName, accountNum, deviceNum, accountPrice, devicePrice, pay, debt, currency })
+        body: JSON.stringify({ name: isName, accountNum, deviceNum, accountPrice, devicePrice, pay, debt, currency, note: isNote })
       });
 
       const data = await response.json();
@@ -111,6 +114,7 @@ export default function Reseller() {
     setDevicePrice(0)
     setPay(0)
     setDebt(0)
+    setIsNote()
 
   }
   ////////////////////////END ADD RESELLER//////////////////////////////
@@ -132,6 +136,7 @@ export default function Reseller() {
 
       if (response.ok) {
         setIsAllReseller(data.resellers);
+        setIsNote(data.subscribes.note)
       } else {
         switch (response.status) {
           case 500:
@@ -325,10 +330,13 @@ export default function Reseller() {
                       </div>
                       <div className='w-1/2 mx-5'>
                         <label htmlFor="debt" className="flex mb-2  font-medium text-gray-900 dark:text-white">Debt</label>
-                        <input  value={debt} type="number" name="debt" id="debt" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="" />
+                        <input value={debt} type="number" name="debt" id="debt" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="" />
                       </div>
                     </div>
-
+                    <div className="col-span-2 pl-5">
+                      <label htmlFor="name" className="flex mb-2  font-medium text-gray-900 dark:text-white">Note</label>
+                      <textarea type="text" onChange={(e) => setIsNote(e.target.value)} value={isNote} name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter Your Note" required="" />
+                    </div>
                   </div>
                   <button type="submit"
                     onClick={handleAdd}
@@ -347,6 +355,8 @@ export default function Reseller() {
           </div>
         </form>
         : ''}
+
+
     </>
   )
 }
