@@ -19,11 +19,15 @@ export default function ResellerSupportEmplyees() {
   const [currency, setCurrency] = useState('$');
   const [pay, setPay] = useState(0);
   const [debt, setDebt] = useState(0);
+  const [isAllProvider, setIsAllProvider] = useState([]);
+  const [isAllApplications, setIsAllApplications] = useState([]);
   const [searchReseller, setSearchReseller] = useState('');
   const [accountTotal, setAccountTotal] = useState(0);
   const [deviceTotal, setDeviceTotal] = useState(0);
   const [total, setTotal] = useState(0);
   const [isNote, setIsNote] = useState('');
+  const [provider, setProvider] = useState('');
+  const [app, setApp] = useState('');
 
   function addReseller() {
     setIsAddReseller(true)
@@ -44,6 +48,96 @@ export default function ResellerSupportEmplyees() {
       setDebt(fullTotal - paid);
     }
   }, [accountNum, accountPrice, deviceNum, devicePrice, pay]);
+
+  /////////////////////// START GET PROVIDER FILTER FUNCTION///////////////////////
+  const getProvider = async () => {
+
+    try {
+      const response = await fetch('https://masa-system.vercel.app/api/v1/provider/get?q=active', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'authorization': `sysOM0${localStorage.getItem('authToken')}`
+        },
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setIsAllProvider(data.providers);
+      } else {
+        switch (response.status) {
+          case 500:
+            toast.error(data.message, {
+              theme: "dark"
+            });
+            break;
+          case 404:
+            toast.error(data.message, {
+              theme: "dark"
+            });
+            break;
+          default:
+            toast('An error occurred. Please try again.');
+        }
+      }
+
+    } catch (err) {
+      console.error("Error Saving Content:", err);
+    } finally {
+      setIsLoading(false)
+    }
+  };
+  useEffect(() => {
+    getProvider()
+  }, [])
+  /////////////////////// END GET PROVIDER FILTER FUNCTION/////////////////////////
+
+  /////////////////////// START GET APPLICATIONS FILTER FUNCTION////////////////
+  const getApplications = async () => {
+
+    try {
+      const response = await fetch('https://masa-system.vercel.app/api/v1/application/get?q=active', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'authorization': `sysOM0${localStorage.getItem('authToken')}`
+        },
+      });
+
+      const data = await response.json();
+
+
+      if (response.ok) {
+        setIsAllApplications(data.applications);
+
+      } else {
+        switch (response.status) {
+          case 500:
+            toast.error(data.message, {
+              theme: "dark"
+            });
+            break;
+          case 404:
+            toast.error(data.message, {
+              theme: "dark"
+            });
+            break;
+          default:
+            toast('An error occurred. Please try again.');
+        }
+      }
+
+    } catch (err) {
+      console.error("Error Saving Content:", err);
+    } finally {
+      setIsLoading(false)
+    }
+  };
+  useEffect(() => {
+    getApplications()
+  }, [])
+  /////////////////////// END GET APPLICATIONS FILTER FUNCTION////////////////
+
   ////////////////////////START ADD RESELLER//////////////////////////////
 
   const addNewReseller = async () => {
@@ -55,7 +149,7 @@ export default function ResellerSupportEmplyees() {
           'Content-Type': 'application/json',
           'authorization': `sysOM0${localStorage.getItem('authToken')}`
         },
-        body: JSON.stringify({ name: isName, accountNum, deviceNum, accountPrice, devicePrice, pay, debt, currency, note: isNote })
+        body: JSON.stringify({ name: isName, accountNum, deviceNum, accountPrice, devicePrice, pay, debt, currency, note: isNote , provider , app })
       });
 
       const data = await response.json();
@@ -134,8 +228,6 @@ export default function ResellerSupportEmplyees() {
       if (response.ok) {
         setIsAllReseller(data.resellers);
         // setIsNote(data.resellers.note);
-        // console.log();
-        
       } else {
         switch (response.status) {
           case 500:
@@ -331,6 +423,28 @@ export default function ResellerSupportEmplyees() {
                         <div className='w-1/2 mx-5'>
                           <label htmlFor="debt" className="flex mb-2  font-medium text-gray-900 dark:text-white">Debt</label>
                           <input value={debt} type="number" name="debt" id="debt" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="" />
+                        </div>
+                      </div>
+                      <div className='flex items-center justify-center col-span-2'>
+                        <div className='w-1/2 mx-5'>
+                          <label htmlFor="provider" className="flex mb-2 text-sm font-medium text-gray-900 dark:text-white">Provider</label>
+                          <select onChange={(e) => setProvider(e.target.value)} value={provider} id="provider" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                            <option selected>Choose a Provider</option>
+                            {isAllProvider.map((provider) => (
+                              <option value={provider.name}>{provider.name}</option>
+
+                            ))}
+                          </select>
+                        </div>
+                        <div className='w-1/2 mx-5'>
+                          <label htmlFor="countries" className="flex mb-2 text-sm font-medium text-gray-900 dark:text-white">App</label>
+                          <select onChange={(e) => setApp(e.target.value)} value={app} id="countries" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                            <option selected>Choose a App</option>
+                            {isAllApplications.map((applications) => (
+                              <option value={applications.name}>{applications.name}</option>
+
+                            ))}
+                          </select>
                         </div>
                       </div>
                       <div className="col-span-2 pl-5">

@@ -40,6 +40,8 @@ export default function CustomerSupportEmplyees() {
   const [to, setTo] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [dates, setDates] = useState([null, null]);
+  const [isNote, setIsNote] = useState('');
+  const [isNotePopUp, setIsNotePopUp] = useState(false);
   const datePickerRef = useRef(null);
   const options = useMemo(() => countryList().getData(), []);
   const accessToken = localStorage.getItem('accessToken');
@@ -59,7 +61,10 @@ export default function CustomerSupportEmplyees() {
     setIsAddCustomerSupport(true)
   }
 
-
+  function notePopUp(note) {
+    setIsNotePopUp(true)
+    setIsNote(note)
+  }
 
   const changeHandler = value => {
     setIsCountry(value);
@@ -250,6 +255,7 @@ export default function CustomerSupportEmplyees() {
         setIsAllCustomer(data.customers);
         setCurrentPage(data.page);
         setAllPage(data.totalPages)
+        setIsNote(data.customers.note)
         console.log(data);
 
       } else {
@@ -300,7 +306,7 @@ export default function CustomerSupportEmplyees() {
           'Content-Type': 'application/json',
           'authorization': `sysOM0${localStorage.getItem('authToken')}`
         },
-        body: JSON.stringify({ name: isName, email, phone: '+' + phone, mac_address: isMacAddress, app, provider, price, currency, statue, country: isCountry.label })
+        body: JSON.stringify({ name: isName, email, phone: '+' + phone, mac_address: isMacAddress, app, provider, price, currency, statue, country: isCountry.label , note :isNote })
       });
 
       const data = await response.json();
@@ -381,6 +387,7 @@ export default function CustomerSupportEmplyees() {
     setIsMacAddress('');
     setCurrency('$');
     setIsCountry('');
+    setIsNote('');
   }
   ////////////////////////END ADD CUSTOMERS//////////////////////////////
 
@@ -614,6 +621,7 @@ export default function CustomerSupportEmplyees() {
                     <option value="Sub">Sub</option>
                   </select>
                 </th>
+                <th scope="col" className="px-6 py-3">Note</th>
                 <th scope="col" className="py-3">Active</th>
               </tr>
             </thead>
@@ -637,6 +645,9 @@ export default function CustomerSupportEmplyees() {
                   <td scope="col" className="py-3">{customers.price + '' + customers.currency}</td>
                   <td scope="col" className="py-3">{new Date(customers.createdAt).toISOString().split('T')[0]}</td>
                   <td scope="col" className="py-3">{customers.statue}</td>
+                  <td scope="col" className="px-6 py-3 text-[#3E3D3D]">
+                    <i className="fa-solid fa-circle-info cursor-pointer" onClick={() => notePopUp(customers.note)}></i>
+                  </td>
                   <td scope="col" className="py-3">
                     <i onClick={() => editeCustomerPopUp(customers)} className={`${styles.icon_edite} fa-solid fa-pen mx-3 cursor-pointer`}></i>
                   </td>
@@ -699,6 +710,10 @@ export default function CustomerSupportEmplyees() {
                           inputStyle={{ height: '30px' }}
                         />
                       </div>
+                      <div className="col-span-2">
+                      <label htmlFor="name" className="flex mb-2  font-medium text-gray-900 dark:text-white">Note</label>
+                      <textarea type="text" onChange={(e) => setIsNote(e.target.value)} value={isNote} name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter Your Note" required="" />
+                    </div>
 
 
                       <div className='flex items-center justify-center col-span-2'>
@@ -889,6 +904,7 @@ export default function CustomerSupportEmplyees() {
                       </div>
 
                     </div>
+                    
 
                     <button type="submit"
                       onClick={hundleUpdate}
@@ -907,6 +923,36 @@ export default function CustomerSupportEmplyees() {
             </div>
           </form>
           : ''}
+
+{isNotePopUp ?
+        <form>
+          <div id="popup-modal" tabindex="-1" className="fixed overflow-y-auto backdrop-blur-sm z-[9999] top-0 left-0 right-0 flex justify-center items-center w-full h-screen bg-black bg-opacity-50 ">
+            <div className="relative p-4 w-full max-w-md max-h-full">
+              <div className="relative bg-white rounded-lg shadow-sm dark:bg-gray-700 w-[500px]">
+                <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    Note
+                  </h3>
+                  <button type="button" onClick={() => { setIsNotePopUp(false); clearInput() }} className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="crud-modal">
+                    <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                    </svg>
+                    <span className="sr-only">Close modal</span>
+                  </button>
+                </div>
+                <div className="px-4 md:p-5">
+                  <div className="grid gap-4 mb-4 grid-cols-2">
+                    <div className='col-span-2 mx-5'>
+                      <label htmlFor="note" className="flex mb-2  font-medium text-gray-900 dark:text-white">Note</label>
+                      <textarea readOnly value={isNote} type="text" name="note" id="note" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+        : ''}
       </section>
     </>
   )
