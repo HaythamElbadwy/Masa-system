@@ -39,6 +39,11 @@ export default function ResellerDetails() {
   const [isResellerName, setIsResellerName] = useState("")
   const datePickerRef = useRef(null);
   const { id } = useParams();
+  const [isAllProvider, setIsAllProvider] = useState([]);
+  const [isAllApplications, setIsAllApplications] = useState([]);
+  const [provider, setProvider] = useState('');
+  const [app, setApp] = useState('');
+
 
 
   const handleDateChange = (update) => {
@@ -111,6 +116,96 @@ export default function ResellerDetails() {
 
 
   ////////////////////////START ADD RESELLER//////////////////////////////
+
+    /////////////////////// START GET PROVIDER FILTER FUNCTION///////////////////////
+    const getProvider = async () => {
+  
+      try {
+        const response = await fetch('https://masa-system.vercel.app/api/v1/provider/get?q=active', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'authorization': `sysOM0${localStorage.getItem('authToken')}`
+          },
+        });
+  
+        const data = await response.json();
+        if (response.ok) {
+          setIsAllProvider(data.providers);
+        } else {
+          switch (response.status) {
+            case 500:
+              toast.error(data.message, {
+                theme: "dark"
+              });
+              break;
+            case 404:
+              toast.error(data.message, {
+                theme: "dark"
+              });
+              break;
+            default:
+              toast('An error occurred. Please try again.');
+          }
+        }
+  
+      } catch (err) {
+        console.error("Error Saving Content:", err);
+      } finally {
+        setIsLoading(false)
+      }
+    };
+    useEffect(() => {
+      getProvider()
+    }, [])
+    /////////////////////// END GET PROVIDER FILTER FUNCTION/////////////////////////
+  
+    /////////////////////// START GET APPLICATIONS FILTER FUNCTION////////////////
+    const getApplications = async () => {
+  
+      try {
+        const response = await fetch('https://masa-system.vercel.app/api/v1/application/get?q=active', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'authorization': `sysOM0${localStorage.getItem('authToken')}`
+          },
+        });
+  
+        const data = await response.json();
+  
+  
+        if (response.ok) {
+          setIsAllApplications(data.applications);
+  
+        } else {
+          switch (response.status) {
+            case 500:
+              toast.error(data.message, {
+                theme: "dark"
+              });
+              break;
+            case 404:
+              toast.error(data.message, {
+                theme: "dark"
+              });
+              break;
+            default:
+              toast('An error occurred. Please try again.');
+          }
+        }
+  
+      } catch (err) {
+        console.error("Error Saving Content:", err);
+      } finally {
+        setIsLoading(false)
+      }
+    };
+    useEffect(() => {
+      getApplications()
+    }, [])
+    /////////////////////// END GET APPLICATIONS FILTER FUNCTION////////////////
+  
 
   //////////////////////START EDITE RESELLER CUSTOMER/////////////////////////
 
@@ -321,7 +416,7 @@ export default function ResellerDetails() {
           'Content-Type': 'application/json',
           'authorization': `sysOM0${localStorage.getItem('authToken')}`
         },
-        body: JSON.stringify({ accountNum, deviceNum, accountPrice, devicePrice, pay, debt, currency, note: isNote })
+        body: JSON.stringify({ accountNum, deviceNum, accountPrice, devicePrice, pay, debt, currency, note: isNote ,provider , app })
       });
 
       const data = await response.json();
@@ -377,7 +472,9 @@ export default function ResellerDetails() {
     setDevicePrice(0);
     setPay(0);
     setDebt(0);
-    setIsNote()
+    setIsNote();
+    setProvider();
+    setApp();
 
   }
   ////////////////////////END ADD RESELLER//////////////////////////////
@@ -551,6 +648,8 @@ export default function ResellerDetails() {
                 <th scope="col" className="px-6 py-3">Price</th>
                 <th scope="col" className="px-6 py-3">Pay</th>
                 <th scope="col" className="px-6 py-3">Debt</th>
+                <th scope="col" className="px-6 py-3">Provider</th>
+                <th scope="col" className="px-6 py-3">App</th>
                 <th scope="col" className="px-6 py-3">Note</th>
                 {/* <th scope="col" className="px-6 py-3">Actions</th> */}
               </tr>
@@ -566,6 +665,8 @@ export default function ResellerDetails() {
                   <td scope="col" className="px-6 py-3 text-[#3E3D3D]">{subscribes.devicePrice}{subscribes.currency ? subscribes.currency : ''}</td>
                   <td scope="col" className="px-6 py-3 text-[#3E3D3D]">{subscribes.pay}</td>
                   <td scope="col" className="px-6 py-3 text-[#3E3D3D]">{subscribes.debt}</td>
+                  <td scope="col" className="px-6 py-3 text-[#3E3D3D]">{subscribes.provider ? subscribes.provider : '-'}</td>
+                  <td scope="col" className="px-6 py-3 text-[#3E3D3D]">{subscribes.app ? subscribes.app : '-'}</td>
                   <td scope="col" className="px-6 py-3 text-[#3E3D3D]">
                     <i className="fa-solid fa-circle-info cursor-pointer" onClick={() => notePopUp(subscribes.note)}></i>
                   </td>
@@ -658,6 +759,28 @@ export default function ResellerDetails() {
                       <div className='w-1/2 mx-5'>
                         <label htmlFor="debt" className="flex mb-2  font-medium text-gray-900 dark:text-white">Debt</label>
                         <input value={debt} type="number" name="debt" id="debt" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="" />
+                      </div>
+                    </div>
+                    <div className='flex items-center justify-center col-span-2'>
+                      <div className='w-1/2 mx-5'>
+                        <label htmlFor="provider" className="flex mb-2 text-sm font-medium text-gray-900 dark:text-white">Provider</label>
+                        <select onChange={(e) => setProvider(e.target.value)} value={provider} id="provider" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                          <option selected>Choose a Provider</option>
+                          {isAllProvider.map((provider) => (
+                            <option value={provider.name}>{provider.name}</option>
+
+                          ))}
+                        </select>
+                      </div>
+                      <div className='w-1/2 mx-5'>
+                        <label htmlFor="countries" className="flex mb-2 text-sm font-medium text-gray-900 dark:text-white">App</label>
+                        <select onChange={(e) => setApp(e.target.value)} value={app} id="countries" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                          <option selected>Choose a App</option>
+                          {isAllApplications.map((applications) => (
+                            <option value={applications.name}>{applications.name}</option>
+
+                          ))}
+                        </select>
                       </div>
                     </div>
                     <div className="col-span-2 pl-5">
