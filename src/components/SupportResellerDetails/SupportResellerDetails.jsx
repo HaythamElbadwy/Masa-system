@@ -26,11 +26,9 @@ export default function SupportResellerDetails() {
   const [isAddDebt, setIsAddDebt] = useState(0);
   const [debt, setDebt] = useState(0);
   const [totalDebt, setTotalDebt] = useState(0);
-  const [isDateFilter, setIsDateFilter] = useState('');
+  const [isItems, setIsItems] = useState("choose a items");
+  const [isPrice, setIsPrice] = useState(0);
   const [isAllResellerCustomer, setIsAllResellerCustomer] = useState([]);
-  const [resellerCustomerId, setResellerCustomerId] = useState();
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
   const [accountTotal, setAccountTotal] = useState(0);
   const [deviceTotal, setDeviceTotal] = useState(0);
   const [total, setTotal] = useState(0);
@@ -47,6 +45,7 @@ export default function SupportResellerDetails() {
   const [isAllApplications, setIsAllApplications] = useState([]);
   const [provider, setProvider] = useState('');
   const [app, setApp] = useState('');
+
 
 
   /////////////////////// START GET PROVIDER FILTER FUNCTION///////////////////////
@@ -529,7 +528,7 @@ export default function SupportResellerDetails() {
 
     setIsLoading(true)
     try {
-      const response = await fetch(`https://masa-system.vercel.app/api/v1/reseller/subscribe/${id}/pay`, {
+      const response = await fetch(`https://masa-system.vercel.app/api/v1/reseller/subscribe/${id}/pay?from=${isItems}&price=${isPrice}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -578,7 +577,7 @@ export default function SupportResellerDetails() {
 
   function handleAddPay(e) {
     e.preventDefault();
-    if (isPay == 0) {
+    if (isPay == 0 || isItems == 'choose a items' || isPrice == 0) {
       toast("All faildes is Rquired!", {
         theme: 'dark'
       })
@@ -588,10 +587,11 @@ export default function SupportResellerDetails() {
   }
 
   function clearInputPay() {
-    setIsPay(0)
+    setIsPay(0);
+    setIsItems('choose a items');
+    setIsPrice(0)
   }
   ////////////////////////END PAY FUNCTION//////////////////////////////
-
 
   return (
     <>
@@ -708,11 +708,7 @@ export default function SupportResellerDetails() {
             </div>
           </div>
         </div>
-
-
       </section>
-
-
 
       {isAddNewSubscribe ?
         <form>
@@ -832,7 +828,7 @@ export default function SupportResellerDetails() {
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                     Pay
                   </h3>
-                  <button type="button" onClick={() => { setIsPayPopUp(false); clearInput() }} className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="crud-modal">
+                  <button type="button" onClick={() => { setIsPayPopUp(false); clearInput() ; clearInputPay() }} className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="crud-modal">
                     <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                       <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
                     </svg>
@@ -847,6 +843,21 @@ export default function SupportResellerDetails() {
                     </div>
                   </div>
 
+                  <div className='flex items-center justify-center col-span-2 mb-3'>
+                    <div className='w-1/2 mx-5'>
+                      <label htmlFor="items" className="flex mb-2 text-sm font-medium text-gray-900 dark:text-white">Items</label>
+                      <select onChange={(e) => setIsItems(e.target.value)} value={isItems} id="items" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <option selected>Choose a items</option>
+                        <option value={'playlists'}>Playlists</option>
+                        <option value={'box'}>Boxes</option>
+                      </select>
+                    </div>
+                    <div className='w-1/2'>
+                      <label htmlFor="price" className="flex mb-2  font-medium text-gray-900 dark:text-white">Price/Pices</label>
+                      <input onChange={(e) => setIsPrice(e.target.value)} value={isPrice} type="number" name="price" id="price" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter Your Price" required="" />
+                    </div>
+                  </div>
+
                   <button type="submit"
                     onClick={handleAddPay}
                     className="text-white mr-5 inline-flex items-center bg-black hover:bg-black focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-black dark:hover:bg-black dark:focus:ring-black">
@@ -854,7 +865,7 @@ export default function SupportResellerDetails() {
                       <i className='fas fa-spinner fa-spin text-2xl'></i>
                       : 'Add'}
                   </button>
-                  <button type="submit" onClick={() => { setIsPayPopUp(false); clearInput() }}
+                  <button type="submit" onClick={() => { setIsPayPopUp(false); clearInput() ; clearInputPay() }}
                     className="text-white mr-5 inline-flex items-center bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-700">
                     Cancel</button>
 
@@ -874,7 +885,7 @@ export default function SupportResellerDetails() {
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                     Debt
                   </h3>
-                  <button type="button" onClick={() => { setIsDebtPopUp(false); clearInput() }} className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="crud-modal">
+                  <button type="button" onClick={() => { setIsDebtPopUp(false); clearInput() ; clearInputPay() ; clearInputDebt() }} className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="crud-modal">
                     <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                       <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
                     </svg>
@@ -896,7 +907,7 @@ export default function SupportResellerDetails() {
                       <i className='fas fa-spinner fa-spin text-2xl'></i>
                       : 'Add'}
                   </button>
-                  <button type="submit" onClick={() => { setIsDebtPopUp(false); clearInput() }}
+                  <button type="submit" onClick={() => { setIsDebtPopUp(false); clearInput() ; clearInputPay() ;clearInputDebt() }}
                     className="text-white mr-5 inline-flex items-center bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-700">
                     Cancel</button>
 
