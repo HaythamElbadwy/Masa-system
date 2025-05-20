@@ -10,6 +10,7 @@ import Select from 'react-select';
 import countryList from 'react-select-country-list';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { BoxesIcon } from 'lucide-react';
 
 export default function Customers() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -33,7 +34,7 @@ export default function Customers() {
   const [isAppFilter, setIsAppFilter] = useState('');
   const [isStatueFilter, setIsStatueFilter] = useState('');
   const [isProviderFilter, setIsProviderFilter] = useState('');
-  const [isDateFilter, setIsDateFilter] = useState('');
+  const [boxes, setBoxes] = useState(0);
   const [customerId, setCustomerId] = useState();
   const [searchCustomer, setSearchCustomer] = useState('');
   const [from, setFrom] = useState('');
@@ -90,6 +91,7 @@ export default function Customers() {
     setIsMacAddress(customers.mac_address);
     setCurrency(customers.currency);
     setIsCountry(customers.country);
+    setBoxes(customers.boxes);
 
   }
 
@@ -284,7 +286,7 @@ export default function Customers() {
           'Content-Type': 'application/json',
           'authorization': `sysOM0${localStorage.getItem('authToken')}`
         },
-        body: JSON.stringify({ name: isName, email, phone: '+' + phone, mac_address: isMacAddress, app, provider, price, currency, statue, country: isCountry.label })
+        body: JSON.stringify({ name: isName, email, phone: '+' + phone, mac_address: isMacAddress, app, provider, price, currency, statue, country: isCountry.label, boxes })
       });
 
       const data = await response.json();
@@ -341,8 +343,7 @@ export default function Customers() {
       return
     }
 
-    if (isName == '' || isMacAddress == '' || app == ''
-      || provider == '' || price == '' || statue == '') {
+    if (isName == '' || price == '' || statue == '' || isCountry == '') {
       toast("All faildes is Rquired!", {
         theme: 'dark'
       })
@@ -365,6 +366,7 @@ export default function Customers() {
     setIsMacAddress('');
     setCurrency('$');
     setIsCountry('');
+    setBoxes(0)
   }
   ////////////////////////END ADD CUSTOMERS//////////////////////////////
 
@@ -380,13 +382,13 @@ export default function Customers() {
           'Content-Type': 'application/json',
           'authorization': `sysOM0${localStorage.getItem('authToken')}`
         },
-        body: JSON.stringify({ name: isName, email, phone: '+' + phone, mac_address: isMacAddress, app, provider, price, currency, statue, country: isCountry })
+        body: JSON.stringify({ name: isName, email, phone: '+' + phone, mac_address: isMacAddress, app, provider, price, currency, statue, country: isCountry , boxes })
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        getCustomer(currentPage, isAppFilter, isProviderFilter, from, to , isStatueFilter)
+        getCustomer(currentPage, isAppFilter, isProviderFilter, from, to, isStatueFilter)
         toast.success(data.message, {
           theme: 'dark'
         })
@@ -433,7 +435,7 @@ export default function Customers() {
     setSearchCustomer(macAddress);
 
     if (macAddress === '') {
-      getCustomer(currentPage, isAppFilter, isProviderFilter, from, to , isStatueFilter); // Fetch all transactions if search is cleared
+      getCustomer(currentPage, isAppFilter, isProviderFilter, from, to, isStatueFilter); // Fetch all transactions if search is cleared
       return;
     }
 
@@ -561,6 +563,7 @@ export default function Customers() {
                   ))}
                 </select>
               </th>
+              <th scope="col" className="py-3">Boxes</th>
               <th scope="col" className="py-3">Price</th>
               <th scope="col" className="py-3">
                 <div className="relative" ref={datePickerRef}>
@@ -613,10 +616,11 @@ export default function Customers() {
                     <p>{customers.phone}</p>
                   </div>
                 </td>
-                <td scope="col" className="py-3">{customers.app}</td>
-                <td scope="col" className="py-3">{customers.mac_address}</td>
+                <td scope="col" className="py-3">{customers.app ? customers.app : '-'}</td>
+                <td scope="col" className="py-3">{customers.mac_address ? customers.mac_address : '-'}</td>
                 <td scope="col" className="py-3">{customers.country}</td>
-                <td scope="col" className="py-3">{customers.provider}</td>
+                <td scope="col" className="py-3">{customers.provider ? customers.provider : '-'}</td>
+                <td scope="col" className="py-3">{customers.boxes}</td>
                 <td scope="col" className="py-3">{customers.price + '' + customers.currency}</td>
                 <td scope="col" className="py-3">{new Date(customers.createdAt).toISOString().split('T')[0]}</td>
                 <td scope="col" className="py-3">{customers.statue}</td>
@@ -730,6 +734,12 @@ export default function Customers() {
                   </div>
 
                   <div className='flex items-center justify-center col-span-2 mb-3'>
+
+                    <div className='w-1/2 mx-5'>
+                      <label htmlFor="boxes" className="flex mb-2 text-sm font-medium text-gray-900 dark:text-white">Boxes</label>
+                      <input onChange={(e) => setBoxes(e.target.value)} value={boxes} id="boxes" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                    </div>
+
                     <div className='w-1/2 mx-5'>
                       <label htmlFor="countries" className="flex mb-2 text-sm font-medium text-gray-900 dark:text-white">Statue</label>
                       <select onChange={(e) => setStatue(e.target.value)} value={statue} id="countries" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
@@ -739,18 +749,17 @@ export default function Customers() {
                       </select>
                     </div>
 
-                    <div className='w-1/2'>
-                      <label htmlFor="country" className="flex mb-2 font-medium text-gray-900 dark:text-white">Country</label>
-                      <Select
-                        options={options}
-                        value={isCountry}
-                        onChange={changeHandler}
-                        className="text-black"
-                        name="country"
-                        inputId="country"
-                      />
-                    </div>
-
+                  </div>
+                  <div className='col-span-2 mb-3 pl-5'>
+                    <label htmlFor="country" className="flex mb-2 font-medium text-gray-900 dark:text-white">Country</label>
+                    <Select
+                      options={options}
+                      value={isCountry}
+                      onChange={changeHandler}
+                      className="text-black"
+                      name="country"
+                      inputId="country"
+                    />
                   </div>
 
                   <button type="submit"
@@ -772,101 +781,108 @@ export default function Customers() {
         : ''}
 
       {isEditeCustomer ?
-        <form>
-          <div id="popup-modal" tabindex="-1" className="fixed overflow-y-auto backdrop-blur-sm z-[9999] top-0 left-0 right-0 flex justify-center items-center w-full h-screen bg-black bg-opacity-50 ">
-            <div className="relative p-4 w-full max-w-md max-h-full">
-              <div className="relative bg-white rounded-lg shadow-sm dark:bg-gray-700 w-[500px]">
-                <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    Edite Customer
-                  </h3>
-                  <button type="button" onClick={() => { setIsEditeCustomer(false); clearInput() }} className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="crud-modal">
-                    <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                    </svg>
-                    <span className="sr-only">Close modal</span>
-                  </button>
-                </div>
-                <div className="px-4 md:p-5">
-                  <div className="grid gap-4 mb-4 grid-cols-2">
-                    <div className="col-span-2">
-                      <label htmlFor="name" className="flex mb-2  font-medium text-gray-900 dark:text-white">Name</label>
-                      <div
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 flex w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                        {isName}
-                      </div>
-                    </div>
-
-                    <div className="col-span-2">
-                      <label htmlFor="email" className="flex mb-2  font-medium text-gray-900 dark:text-white">Email</label>
-                      <div
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 flex w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                        {email}
-                      </div>
-                    </div>
-
-                    <label htmlFor="phone" className="flex font-medium text-gray-900 dark:text-white">Phone</label>
-                    <div className="bg-gray-100 rounded-xl p-2 w-full max-w-md col-span-2">
-                      <PhoneInput
-                        country={'eg'}
-                        value={phone}
-                        onChange={setPhone}
-                        inputClass="!bg-gray-100 !w-full !border-none !rounded-xl !text-gray-800"
-                        buttonClass="!bg-gray-100 !rounded-l-xl"
-                        containerClass="!w-full"
-                        inputStyle={{ height: '30px' }}
-                      />
-                    </div>
-
-
-                    <div className='flex items-center justify-center col-span-2'>
-                      <div className='w-1/2 mx-5'>
-                        <label htmlFor="countries" className="flex mb-2 text-sm font-medium text-gray-900 dark:text-white">App</label>
+      <form>
+            <div id="popup-modal" tabindex="-1" className="fixed overflow-y-auto backdrop-blur-sm z-[9999] top-0 left-0 right-0 flex justify-center items-center w-full h-screen bg-black bg-opacity-50 ">
+              <div className="relative p-4 w-full max-w-md max-h-full">
+                <div className="relative bg-white rounded-lg shadow-sm dark:bg-gray-700 w-[500px]">
+                  <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      Edite Customer
+                    </h3>
+                    <button type="button" onClick={() => { setIsEditeCustomer(false); clearInput() }} className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="crud-modal">
+                      <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                      </svg>
+                      <span className="sr-only">Close modal</span>
+                    </button>
+                  </div>
+                  <div className="px-4 md:p-5">
+                    <div className="grid gap-4 mb-4 grid-cols-2">
+                      <div className="col-span-2">
+                        <label htmlFor="name" className="flex mb-2  font-medium text-gray-900 dark:text-white">Name</label>
                         <div
                           className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 flex w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                          {app}
+                          {isName}
                         </div>
                       </div>
-                      <div className='w-1/2'>
-                        <label htmlFor="macAddress" className="flex mb-2  font-medium text-gray-900 dark:text-white">Mac Address</label>
+
+                      <div className="col-span-2">
+                        <label htmlFor="email" className="flex mb-2  font-medium text-gray-900 dark:text-white">Email</label>
                         <div
                           className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 flex w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                          {isMacAddress}
+                          {email ? email : 'No Email'}
                         </div>
                       </div>
-                    </div>
-                    <div className='flex items-center justify-center col-span-2'>
-                      <div className='w-1/2 mx-5'>
-                        <label htmlFor="provider" className="flex mb-2 text-sm font-medium text-gray-900 dark:text-white">Provider</label>
-                        <div
-                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 flex w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                          {provider}
+
+                      <label htmlFor="phone" className="flex font-medium text-gray-900 dark:text-white">Phone</label>
+                      <div className="bg-gray-100 rounded-xl p-2 w-full max-w-md col-span-2">
+                        <PhoneInput
+                          country={'eg'}
+                          value={phone}
+                          onChange={setPhone}
+                          inputClass="!bg-gray-100 !w-full !border-none !rounded-xl !text-gray-800"
+                          buttonClass="!bg-gray-100 !rounded-l-xl"
+                          containerClass="!w-full"
+                          inputStyle={{ height: '30px' }}
+                        />
+                      </div>
+
+
+                      <div className='flex items-center justify-center col-span-2'>
+                        <div className='w-1/2 mx-5'>
+                          <label htmlFor="app" className="flex mb-2 text-sm font-medium text-gray-900 dark:text-white">App</label>
+                          <div
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 flex w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                            {app ? app : 'No App'}
+                          </div>
+                        </div>
+                        <div className='w-1/2'>
+                          <label htmlFor="macAddress" className="flex mb-2  font-medium text-gray-900 dark:text-white">Mac Address</label>
+                          <div
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 flex w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                            {isMacAddress ? isMacAddress : 'No Mac Address'}
+                          </div>
                         </div>
                       </div>
-                      <div className='w-1/2 mr-[-17px]'>
-                        <label htmlFor="macAddress" className="flex mb-2 font-medium text-gray-900 dark:text-white">Price</label>
-                        <div className='flex'>
-                          <input type="number" onChange={(e) => setPrice(e.target.value)} value={price} name="price" id="price"
-                            className="w-32 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="" />
-                          <div id="currency" className="mx-5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-16 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                            {currency}
+                      <div className='flex items-center justify-center col-span-2'>
+                        <div className='w-1/2 mx-5'>
+                          <label htmlFor="provider" className="flex mb-2 text-sm font-medium text-gray-900 dark:text-white">Provider</label>
+                          <div
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 flex w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                            {provider ? provider : 'No Provider'}
+                          </div>
+                        </div>
+                        <div className='w-1/2 mr-[-17px]'>
+                          <label htmlFor="macAddress" className="flex mb-2 font-medium text-gray-900 dark:text-white">Price</label>
+                          <div className='flex'>
+                            <input type="number" onChange={(e) => setPrice(e.target.value)} value={price} name="price" id="price"
+                              className="w-32 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="" />
+                            <div id="currency" className="mx-5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-16 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                              {currency}
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className='flex items-center justify-center col-span-2 mb-3'>
-                    <div className='w-1/2 mx-5'>
-                      <label htmlFor="countries" className="flex mb-2 text-sm font-medium text-gray-900 dark:text-white">Statue</label>
-                      <select onChange={(e) => setStatue(e.target.value)} value={statue} id="countries" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                        <option selected>Choose a Status</option>
-                        <option>Test</option>
-                        <option>Sub</option>
-                      </select>
+                    <div className='flex items-center justify-center col-span-2 mb-3'>
+                      <div className='w-1/2 mx-5'>
+                        <label htmlFor="boxes" className="flex mb-2 text-sm font-medium text-gray-900 dark:text-white">Boxes</label>
+                        <input type='number' onChange={(e) => setBoxes(e.target.value)} value={boxes} id="boxes" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                      </div>
+                      <div className='w-1/2 mx-5'>
+                        <label htmlFor="countries" className="flex mb-2 text-sm font-medium text-gray-900 dark:text-white">Statue</label>
+                        <select onChange={(e) => setStatue(e.target.value)} value={statue} id="countries" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                          <option selected>Choose a Status</option>
+                          <option>Test</option>
+                          <option>Sub</option>
+                        </select>
+                      </div>
+
+
+
                     </div>
-
-                    <div className='w-1/2'>
+                    <div className='col-span-2 mb-3 pl-5'>
                       <label htmlFor="country" className="flex mb-2  font-medium text-gray-900 dark:text-white">Country</label>
                       <div
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 flex w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
@@ -874,24 +890,23 @@ export default function Customers() {
                       </div>
                     </div>
 
+
+                    <button type="submit"
+                      onClick={hundleUpdate}
+                      className="text-white mr-5 inline-flex items-center bg-black hover:bg-black focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-black dark:hover:bg-black dark:focus:ring-black">
+                      {isLoading ?
+                        <i className='fas fa-spinner fa-spin text-2xl'></i>
+                        : 'Edite'}
+                    </button>
+                    <button type="submit" onClick={() => { setIsEditeCustomer(false); clearInput() }}
+                      className="text-white mr-5 inline-flex items-center bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-700">
+                      Cancel</button>
+
                   </div>
-
-                  <button type="submit"
-                    onClick={hundleUpdate}
-                    className="text-white mr-5 inline-flex items-center bg-black hover:bg-black focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-black dark:hover:bg-black dark:focus:ring-black">
-                    {isLoading ?
-                      <i className='fas fa-spinner fa-spin text-2xl'></i>
-                      : 'Edite'}
-                  </button>
-                  <button type="submit" onClick={() => { setIsEditeCustomer(false); clearInput() }}
-                    className="text-white mr-5 inline-flex items-center bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-700">
-                    Cancel</button>
-
                 </div>
               </div>
             </div>
-          </div>
-        </form>
+          </form>
         : ''}
     </>
   )

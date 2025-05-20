@@ -308,7 +308,7 @@ export default function CustomerSupportEmplyees() {
           'Content-Type': 'application/json',
           'authorization': `sysOM0${localStorage.getItem('authToken')}`
         },
-        body: JSON.stringify({ name: isName, email, phone: '+' + phone, mac_address: isMacAddress, app, provider, price, currency, statue, country: isCountry.label, note: isNote , boxes })
+        body: JSON.stringify({ name: isName, email, phone: '+' + phone, mac_address: isMacAddress, app, provider, price, currency, statue, country: isCountry.label, note: isNote, boxes })
       });
 
       const data = await response.json();
@@ -365,7 +365,7 @@ export default function CustomerSupportEmplyees() {
       return
     }
 
-    if (isName == '' || price == '' || statue == '') {
+    if (isName == '' || price == '' || statue == '' || isCountry == '') {
       toast("All faildes is Rquired!", {
         theme: 'dark'
       })
@@ -404,7 +404,7 @@ export default function CustomerSupportEmplyees() {
           'Content-Type': 'application/json',
           'authorization': `sysOM0${localStorage.getItem('authToken')}`
         },
-        body: JSON.stringify({ name: isName, email, phone: '+' + phone, mac_address: isMacAddress, app, provider, price, currency, statue, country: isCountry , boxes})
+        body: JSON.stringify({ name: isName, email, phone: '+' + phone, mac_address: isMacAddress, app, provider, price, currency, statue, country: isCountry, boxes })
       });
 
       const data = await response.json();
@@ -896,7 +896,7 @@ export default function CustomerSupportEmplyees() {
                     </div>
 
                     <div className='flex items-center justify-center col-span-2 mb-3'>
-                       <div className='w-1/2 mx-5'>
+                      <div className='w-1/2 mx-5'>
                         <label htmlFor="boxes" className="flex mb-2 text-sm font-medium text-gray-900 dark:text-white">Boxes</label>
                         <input type='number' onChange={(e) => setBoxes(e.target.value)} value={boxes} id="boxes" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
                       </div>
@@ -909,16 +909,16 @@ export default function CustomerSupportEmplyees() {
                         </select>
                       </div>
 
-                    
+
 
                     </div>
-                      <div className='col-span-2 mb-3 pl-5'>
-                        <label htmlFor="country" className="flex mb-2  font-medium text-gray-900 dark:text-white">Country</label>
-                        <div
-                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 flex w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                          {isCountry}
-                        </div>
+                    <div className='col-span-2 mb-3 pl-5'>
+                      <label htmlFor="country" className="flex mb-2  font-medium text-gray-900 dark:text-white">Country</label>
+                      <div
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 flex w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        {isCountry}
                       </div>
+                    </div>
 
 
                     <button type="submit"
