@@ -43,6 +43,7 @@ export default function CustomerSupportEmplyees() {
   const [isNote, setIsNote] = useState('');
   const [isNotePopUp, setIsNotePopUp] = useState(false);
   const datePickerRef = useRef(null);
+  const [boxes, setBoxes] = useState(0);
   const options = useMemo(() => countryList().getData(), []);
   const accessToken = localStorage.getItem('accessToken');
   function logOut() {
@@ -109,6 +110,7 @@ export default function CustomerSupportEmplyees() {
     setIsMacAddress(customers.mac_address);
     setCurrency(customers.currency);
     setIsCountry(customers.country);
+    setBoxes(customers.boxes);
 
   }
 
@@ -306,7 +308,7 @@ export default function CustomerSupportEmplyees() {
           'Content-Type': 'application/json',
           'authorization': `sysOM0${localStorage.getItem('authToken')}`
         },
-        body: JSON.stringify({ name: isName, email, phone: '+' + phone, mac_address: isMacAddress, app, provider, price, currency, statue, country: isCountry.label , note :isNote })
+        body: JSON.stringify({ name: isName, email, phone: '+' + phone, mac_address: isMacAddress, app, provider, price, currency, statue, country: isCountry.label, note: isNote , boxes })
       });
 
       const data = await response.json();
@@ -363,8 +365,7 @@ export default function CustomerSupportEmplyees() {
       return
     }
 
-    if (isName == '' || isMacAddress == '' || app == ''
-      || provider == '' || price == '' || statue == '') {
+    if (isName == '' || price == '' || statue == '') {
       toast("All faildes is Rquired!", {
         theme: 'dark'
       })
@@ -388,6 +389,7 @@ export default function CustomerSupportEmplyees() {
     setCurrency('$');
     setIsCountry('');
     setIsNote('');
+    setBoxes(0)
   }
   ////////////////////////END ADD CUSTOMERS//////////////////////////////
 
@@ -402,7 +404,7 @@ export default function CustomerSupportEmplyees() {
           'Content-Type': 'application/json',
           'authorization': `sysOM0${localStorage.getItem('authToken')}`
         },
-        body: JSON.stringify({ name: isName, email, phone: '+' + phone, mac_address: isMacAddress, app, provider, price, currency, statue, country: isCountry })
+        body: JSON.stringify({ name: isName, email, phone: '+' + phone, mac_address: isMacAddress, app, provider, price, currency, statue, country: isCountry , boxes})
       });
 
       const data = await response.json();
@@ -585,6 +587,7 @@ export default function CustomerSupportEmplyees() {
                     ))}
                   </select>
                 </th>
+                <th scope="col" className="py-3">Boxes</th>
                 <th scope="col" className="py-3">Price</th>
                 <th scope="col" className="py-3">
                   <div className="relative" ref={datePickerRef}>
@@ -638,10 +641,11 @@ export default function CustomerSupportEmplyees() {
                       <p>{customers.phone}</p>
                     </div>
                   </td>
-                  <td scope="col" className="py-3">{customers.app}</td>
-                  <td scope="col" className="py-3">{customers.mac_address}</td>
+                  <td scope="col" className="py-3">{customers.app ? customers.app : '-'}</td>
+                  <td scope="col" className="py-3">{customers.mac_address ? customers.mac_address : '-'}</td>
                   <td scope="col" className="py-3">{customers.country}</td>
-                  <td scope="col" className="py-3">{customers.provider}</td>
+                  <td scope="col" className="py-3">{customers.provider ? customers.provider : '-'}</td>
+                  <th scope="col" className="py-3">{customers.boxes}</th>
                   <td scope="col" className="py-3">{customers.price + '' + customers.currency}</td>
                   <td scope="col" className="py-3">{new Date(customers.createdAt).toISOString().split('T')[0]}</td>
                   <td scope="col" className="py-3">{customers.statue}</td>
@@ -711,9 +715,9 @@ export default function CustomerSupportEmplyees() {
                         />
                       </div>
                       <div className="col-span-2">
-                      <label htmlFor="name" className="flex mb-2  font-medium text-gray-900 dark:text-white">Note</label>
-                      <textarea type="text" onChange={(e) => setIsNote(e.target.value)} value={isNote} name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter Your Note" required="" />
-                    </div>
+                        <label htmlFor="name" className="flex mb-2  font-medium text-gray-900 dark:text-white">Note</label>
+                        <textarea type="text" onChange={(e) => setIsNote(e.target.value)} value={isNote} name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter Your Note" required="" />
+                      </div>
 
 
                       <div className='flex items-center justify-center col-span-2'>
@@ -762,6 +766,10 @@ export default function CustomerSupportEmplyees() {
 
                     <div className='flex items-center justify-center col-span-2 mb-3'>
                       <div className='w-1/2 mx-5'>
+                        <label htmlFor="boxes" className="flex mb-2 text-sm font-medium text-gray-900 dark:text-white">Boxes</label>
+                        <input onChange={(e) => setBoxes(e.target.value)} value={boxes} id="boxes" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                      </div>
+                      <div className='w-1/2 mx-5'>
                         <label htmlFor="countries" className="flex mb-2 text-sm font-medium text-gray-900 dark:text-white">Statue</label>
                         <select onChange={(e) => setStatue(e.target.value)} value={statue} id="countries" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                           <option selected>Choose a Status</option>
@@ -769,17 +777,19 @@ export default function CustomerSupportEmplyees() {
                           <option>Sub</option>
                         </select>
                       </div>
-                      <div className='w-1/2'>
-                        <label htmlFor="country" className="flex mb-2 font-medium text-gray-900 dark:text-white">Country</label>
-                        <Select
-                          options={options}
-                          value={isCountry}
-                          onChange={changeHandler}
-                          className="text-black"
-                          name="country"
-                          inputId="country"
-                        />
-                      </div>
+
+                    </div>
+
+                    <div className='col-span-2 mb-3 pl-5'>
+                      <label htmlFor="country" className="flex mb-2 font-medium text-gray-900 dark:text-white">Country</label>
+                      <Select
+                        options={options}
+                        value={isCountry}
+                        onChange={changeHandler}
+                        className="text-black"
+                        name="country"
+                        inputId="country"
+                      />
                     </div>
 
                     <button type="submit"
@@ -830,7 +840,7 @@ export default function CustomerSupportEmplyees() {
                         <label htmlFor="email" className="flex mb-2  font-medium text-gray-900 dark:text-white">Email</label>
                         <div
                           className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 flex w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                          {email}
+                          {email ? email : 'No Email'}
                         </div>
                       </div>
 
@@ -850,17 +860,17 @@ export default function CustomerSupportEmplyees() {
 
                       <div className='flex items-center justify-center col-span-2'>
                         <div className='w-1/2 mx-5'>
-                          <label htmlFor="countries" className="flex mb-2 text-sm font-medium text-gray-900 dark:text-white">App</label>
+                          <label htmlFor="app" className="flex mb-2 text-sm font-medium text-gray-900 dark:text-white">App</label>
                           <div
                             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 flex w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                            {app}
+                            {app ? app : 'No App'}
                           </div>
                         </div>
                         <div className='w-1/2'>
                           <label htmlFor="macAddress" className="flex mb-2  font-medium text-gray-900 dark:text-white">Mac Address</label>
                           <div
                             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 flex w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                            {isMacAddress}
+                            {isMacAddress ? isMacAddress : 'No Mac Address'}
                           </div>
                         </div>
                       </div>
@@ -869,7 +879,7 @@ export default function CustomerSupportEmplyees() {
                           <label htmlFor="provider" className="flex mb-2 text-sm font-medium text-gray-900 dark:text-white">Provider</label>
                           <div
                             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 flex w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                            {provider}
+                            {provider ? provider : 'No Provider'}
                           </div>
                         </div>
                         <div className='w-1/2 mr-[-17px]'>
@@ -886,6 +896,10 @@ export default function CustomerSupportEmplyees() {
                     </div>
 
                     <div className='flex items-center justify-center col-span-2 mb-3'>
+                       <div className='w-1/2 mx-5'>
+                        <label htmlFor="boxes" className="flex mb-2 text-sm font-medium text-gray-900 dark:text-white">Boxes</label>
+                        <input type='number' onChange={(e) => setBoxes(e.target.value)} value={boxes} id="boxes" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                      </div>
                       <div className='w-1/2 mx-5'>
                         <label htmlFor="countries" className="flex mb-2 text-sm font-medium text-gray-900 dark:text-white">Statue</label>
                         <select onChange={(e) => setStatue(e.target.value)} value={statue} id="countries" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
@@ -895,7 +909,10 @@ export default function CustomerSupportEmplyees() {
                         </select>
                       </div>
 
-                      <div className='w-1/2'>
+                    
+
+                    </div>
+                      <div className='col-span-2 mb-3 pl-5'>
                         <label htmlFor="country" className="flex mb-2  font-medium text-gray-900 dark:text-white">Country</label>
                         <div
                           className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 flex w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
@@ -903,8 +920,6 @@ export default function CustomerSupportEmplyees() {
                         </div>
                       </div>
 
-                    </div>
-                    
 
                     <button type="submit"
                       onClick={hundleUpdate}
@@ -924,35 +939,35 @@ export default function CustomerSupportEmplyees() {
           </form>
           : ''}
 
-{isNotePopUp ?
-        <form>
-          <div id="popup-modal" tabindex="-1" className="fixed overflow-y-auto backdrop-blur-sm z-[9999] top-0 left-0 right-0 flex justify-center items-center w-full h-screen bg-black bg-opacity-50 ">
-            <div className="relative p-4 w-full max-w-md max-h-full">
-              <div className="relative bg-white rounded-lg shadow-sm dark:bg-gray-700 w-[500px]">
-                <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    Note
-                  </h3>
-                  <button type="button" onClick={() => { setIsNotePopUp(false); clearInput() }} className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="crud-modal">
-                    <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                    </svg>
-                    <span className="sr-only">Close modal</span>
-                  </button>
-                </div>
-                <div className="px-4 md:p-5">
-                  <div className="grid gap-4 mb-4 grid-cols-2">
-                    <div className='col-span-2 mx-5'>
-                      <label htmlFor="note" className="flex mb-2  font-medium text-gray-900 dark:text-white">Note</label>
-                      <textarea readOnly value={isNote} type="text" name="note" id="note" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" />
+        {isNotePopUp ?
+          <form>
+            <div id="popup-modal" tabindex="-1" className="fixed overflow-y-auto backdrop-blur-sm z-[9999] top-0 left-0 right-0 flex justify-center items-center w-full h-screen bg-black bg-opacity-50 ">
+              <div className="relative p-4 w-full max-w-md max-h-full">
+                <div className="relative bg-white rounded-lg shadow-sm dark:bg-gray-700 w-[500px]">
+                  <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      Note
+                    </h3>
+                    <button type="button" onClick={() => { setIsNotePopUp(false); clearInput() }} className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="crud-modal">
+                      <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                      </svg>
+                      <span className="sr-only">Close modal</span>
+                    </button>
+                  </div>
+                  <div className="px-4 md:p-5">
+                    <div className="grid gap-4 mb-4 grid-cols-2">
+                      <div className='col-span-2 mx-5'>
+                        <label htmlFor="note" className="flex mb-2  font-medium text-gray-900 dark:text-white">Note</label>
+                        <textarea readOnly value={isNote} type="text" name="note" id="note" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </form>
-        : ''}
+          </form>
+          : ''}
       </section>
     </>
   )
